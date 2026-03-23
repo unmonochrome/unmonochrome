@@ -1,0 +1,1 @@
+global.hit_pause = 0;
