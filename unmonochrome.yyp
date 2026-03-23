@@ -11,8 +11,8 @@
   "defaultScriptType":1,
   "Folders":[
     {"$GMFolder":"","%Name":"assets menu","folderPath":"folders/assets menu.yy","name":"assets menu","resourceType":"GMFolder","resourceVersion":"2.0",},
-    {"$GMFolder":"","%Name":"fontes","folderPath":"folders/fontes.yy","name":"fontes","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"assets menu2","folderPath":"folders/assets menu2.yy","name":"assets menu2","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"fontes","folderPath":"folders/fontes.yy","name":"fontes","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj_botoes","folderPath":"folders/obj_botoes.yy","name":"obj_botoes","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj_controladores","folderPath":"folders/obj_controladores.yy","name":"obj_controladores","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj","folderPath":"folders/obj.yy","name":"obj","resourceType":"GMFolder","resourceVersion":"2.0",},
