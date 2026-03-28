@@ -301,12 +301,14 @@ if (attacking)
 // ========================================
 #region DAMAGE
 var enemy = instance_place(x, y, obj_enemy);
-var boss_hand = instance_place(x, y, obj_boss_mao);
+var boss_hand = instance_place(x, y, obj_boss_hand_ground);
+var falling_hand = instance_place(x, y, obj_boss_hand_fall);
 
 var attacker = noone;
 
 if (enemy != noone) attacker = enemy;
 if (boss_hand != noone) attacker = boss_hand;
+if (falling_hand != noone) attacker = falling_hand;
 
 if (attacker != noone && invincible <= 0)
 {
