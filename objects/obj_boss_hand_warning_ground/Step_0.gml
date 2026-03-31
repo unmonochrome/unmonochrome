@@ -1,9 +1,17 @@
 timer++;
-if (timer >= room_speed*2) // warning dura 2s
+x = spawn_x;
+y = target_y; // ⚠️ warning fixo, na posição final da mão
+
+if (timer >= warning_time)
 {
-    var h = instance_create_depth(spawn_x, spawn_y, -20, obj_boss_hand_ground);
-    h.owner = owner;
-    h.is_target = is_target;
-    h.target_y = target_y;
-    instance_destroy();
+    // cria a mão ativa
+    var g = instance_create_depth(spawn_x, spawn_y, -16, obj_boss_hand_ground);
+    g.spawn_x = spawn_x;
+    g.spawn_y = spawn_y;
+    g.target_y = target_y;
+    g.owner = owner;
+    g.is_target = is_target;
+    g.hand_speed = 0.6;
+
+    instance_destroy(); // destrói o warning
 }

@@ -1,1 +1,1 @@
-draw_sprite(spr_hand_warning,0,x,y);
+draw_self();

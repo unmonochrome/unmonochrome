@@ -1,8 +1,8 @@
-// desenha o olho
-draw_sprite(sprite_index,0,x,y);
+// olho
+draw_sprite(sprite_index, 0, x, y);
 
 // pupila
-var p = instance_find(obj_player,0);
+var p = instance_find(obj_player, 0);
 if (instance_exists(p))
 {
     var dx = p.x - x;
@@ -13,3 +13,4 @@ if (instance_exists(p))
 
     draw_sprite(spr_pupila, 0, x + dx, y + dy + pupila_offset_y);
 }
+

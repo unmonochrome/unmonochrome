@@ -1,16 +1,16 @@
 {
   "$GMObject":"",
-  "%Name":"obj_boss_hand_ground",
+  "%Name":"obj_boss_trigger",
   "eventList":[
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},"eventNum":0,"eventType":4,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
-    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"obj_boss_hand_ground",
+  "name":"obj_boss_trigger",
   "overriddenProperties":[],
   "parent":{
-    "name":"objetos vivos",
-    "path":"folders/objetos vivos.yy",
+    "name":"obj",
+    "path":"folders/obj.yy",
   },
   "parentObjectId":null,
   "persistent":false,
@@ -31,8 +31,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_hand_ground",
-    "path":"sprites/spr_hand_ground/spr_hand_ground.yy",
+    "name":"bg",
+    "path":"sprites/bg/bg.yy",
   },
   "spriteMaskId":null,
   "visible":true,

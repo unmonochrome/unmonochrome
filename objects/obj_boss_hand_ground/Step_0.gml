@@ -1,52 +1,42 @@
-timer++;
+// define sprite
+sprite_index = is_target ? spr_hand_ground_target : spr_hand_ground;
 
-if (is_target) sprite_index = spr_hand_ground_target;
-else sprite_index = spr_hand_ground;
-
-image_xscale=1; image_yscale=1;
-
-switch(state)
+// subida da mão
+if (state == 0)
 {
-    case 0: // subindo rápido
-        var fast_spd = 0.35;
-        y = lerp(y,target_y,fast_spd);
-        if (abs(y-target_y)<2) { y=target_y; state=1; timer=0; can_be_hit=true; }
-    break;
-
-    case 1: // parada
-        if (timer>=life_time) state=2;
-    break;
-
-    case 2: // descendo
-        y+=8;
-        if (y>room_height+200) instance_destroy();
-    break;
+    y = lerp(y, target_y, hand_speed);
+    if (abs(y - target_y) < 2)
+    {
+        y = target_y;
+        state = 1;
+        timer = 0;
+        can_be_hit = true;
+    }
+}
+else if (state == 1)
+{
+    timer++;
+    if (timer >= stay_time)
+        instance_destroy();
 }
 
 // colisão com hitbox do player
-if (can_be_hit)
+var atk = instance_place(x, y, obj_player_hitbox);
+if (atk != noone && can_be_hit)
 {
-    var attack = collision_rectangle(
-        x-sprite_width/2, y-sprite_height/2,
-        x+sprite_width/2, y+sprite_height/2,
-        obj_player_hitbox,false,true
-    );
-
-    if (attack != noone)
+    if (instance_exists(owner))
     {
         if (is_target)
         {
-            // dano no boss
-            if (instance_exists(owner)) owner.hp -= 1;
-            with(obj_camera) { shake_time=6; shake_strength=4; }
+            owner.hp -= 1;
+            owner.correct_hand_hit = true;
         }
         else
         {
-            // mão errada → sinaliza pro boss destruir tudo
-            if (instance_exists(owner)) owner.errada_atingida = true;
+            owner.wrong_hand_hit = true;
         }
-
-        instance_destroy(attack);
-        instance_destroy(); // destrói essa mão
     }
+
+    instance_destroy(atk);
+    instance_destroy();
 }
