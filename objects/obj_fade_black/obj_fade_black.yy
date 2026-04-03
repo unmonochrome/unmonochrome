@@ -1,12 +1,13 @@
 {
   "$GMObject":"",
-  "%Name":"obj_door",
+  "%Name":"obj_fade_black",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"obj_door",
+  "name":"obj_fade_black",
   "overriddenProperties":[],
   "parent":{
     "name":"obj",
@@ -30,10 +31,7 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":{
-    "name":"spr_porta",
-    "path":"sprites/spr_porta/spr_porta.yy",
-  },
+  "spriteId":null,
   "spriteMaskId":null,
   "visible":true,
 }

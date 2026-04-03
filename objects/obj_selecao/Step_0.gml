@@ -19,20 +19,30 @@ if (keyboard_check_pressed(vk_down))
 
 if (menu_index != previous_menu_index)
 {
+    // desativa todos primeiro
+    with (obj_bg_menu1) active = false;
+    with (obj_bg_menu2) active = false;
+    with (obj_bg_menu3) active = false;
+
     if (menu_index == 1) // opções
     {
-        with (obj_bg_menu1) active = false;
-
         with (obj_bg_menu2)
         {
             active = true;
             reset_intro();
         }
     }
-    else
+    else if (menu_index == 2) // créditos
+    {
+        with (obj_bg_menu3)
+        {
+            active = true;
+            reset_intro();
+        }
+    }
+    else // jogar ou sair
     {
         with (obj_bg_menu1) active = true;
-        with (obj_bg_menu2) active = false;
     }
 
     previous_menu_index = menu_index;

@@ -1,78 +1,138 @@
+/// Step Event — obj_boss_eye
+
 state_timer++;
 
-// player
-var p = instance_find(obj_player,0);
+var p = instance_find(obj_player, 0);
 if (!instance_exists(p)) exit;
 
-// HP ratio
 var hp_lost = max_hp - hp;
 var hp_ratio = hp_lost / max_hp;
-
-// número de mãos
 var hand_count = min(3 + hp_lost, 7);
 
-#region CUTSCENE (state 99)
+// ==========================================
+#region STATE 99 — CUTSCENE SPAWN
+// ==========================================
 if (state == 99)
 {
-    // fade in
-    fade_alpha = min(1, fade_alpha + fade_speed);
+    fade_alpha = max(0, fade_alpha + fade_speed);
+    spawn_scale = min(1, spawn_scale + spawn_speed);
+    p.freeze = true;
 
-    // descida lenta
-    if (y < 1184) y += boss_speed; 
-    else y = 1184;
-
-    // countdown depois de pequena pausa
-    var countdown_delay = room_speed * 1.5;
-    if (state_timer > countdown_delay)
+    if (fade_alpha <= 0 && spawn_scale >= 1)
     {
-        var countdown = max(0, 3 - floor((state_timer - countdown_delay)/room_speed));
-        draw_set_font(fnt_countdown);
-        draw_set_halign(fa_center);
-        draw_set_valign(fa_middle);
-        draw_text(room_width/2, room_height/2, string(countdown));
-    }
-
-    // mantém player congelado
-    if (instance_exists(p)) p.freeze = true;
-
-    // fim cutscene
-    if (state_timer >= room_speed*4.5) // pausa + 3s countdown
-    {
-        state = 0; // inicia batalha
+        state = 0;
         state_timer = 0;
-        if (instance_exists(p)) p.freeze = false;
-
-        battle_base_x = p.x; // fixa x base para spawn das mãos
-        obj_camera.in_cutscene = false;
-        obj_camera.cutscene_target = noone;
+        spawn_scale = 1;
+        p.freeze = false;
     }
-
-    exit; // nada mais roda durante cutscene
+    exit;
 }
 #endregion
 
-#region BATALHA NORMAL
-// flutuação horizontal apenas (Y fixo)
+// ==========================================
+// ==========================================
+// ==========================================
+#region STATE 3 — MORTE ÉPICA
+// ==========================================
+if (state == 3)
+{
+    var dt = state_timer;
+    sprite_index = spr_eye_open;
+    p.freeze = true;
+
+    with (obj_boss_hand_ground) instance_destroy();
+    with (obj_boss_hand_warning_ground) instance_destroy();
+
+    // --- HITSTOP (frames 1-6) ---
+    if (dt <= 6)
+    {
+        death_flash = 1;
+        pupila_scale = lerp(pupila_scale, 2, 0.3);
+        exit;
+    }
+
+    // --- FLASH INICIAL SUMINDO ---
+    death_flash = max(0, death_flash - 0.035);
+
+    // --- PUPILA ---
+    if (dt < 20)
+        pupila_scale = lerp(pupila_scale, 1.5, 0.1);
+    else if (dt < 70)
+        pupila_scale = lerp(pupila_scale, 0, 0.06);
+    else
+        pupila_scale = 0;
+
+    var t = clamp((dt - 6) / 180, 0, 1);
+
+    // --- SHAKE CRESCENTE ---
+    death_shake = t * 22;
+
+    // --- ROTAÇÃO ACELERANDO ---
+    death_rot_speed = lerp(death_rot_speed, 16, 0.008);
+    death_angle += death_rot_speed;
+
+    // --- PULSAÇÃO ---
+    var pf = 0.12 + t * 0.35;
+    var pa = 0.04 + t * 0.14;
+    death_pulse = sin(dt * pf) * pa * max(0, 1 - t * 1.2);
+
+    // --- AFUNDA ---
+    if (dt > 40)
+        death_y_drift += 0.25;
+
+    // --- ENCOLHE ---
+    if (t > 0.35)
+    {
+        var st = (t - 0.35) / 0.65;
+        death_scale = max(0, 1 - st);
+    }
+
+    // --- VERMELHO CRESCENTE (enquanto boss visível) ---
+    if (death_scale > 0.03)
+    {
+        if (t > 0.15)
+            death_red = min(0.7, death_red + 0.005);
+    }
+    else
+    {
+        // --- BOSS SUMIU → VERMELHO VIRA PRETO SUAVEMENTE ---
+        death_scale = 0;
+        death_red = min(1, death_red + 0.02);
+    }
+
+    // --- QUANDO TELA FICOU TOTALMENTE ESCURA → SPAWNA FADE E MORRE ---
+    if (death_scale <= 0 && death_red >= 1)
+    {
+        var fb = instance_create_depth(0, 0, -9999, obj_fade_black);
+        fb.alpha = 1; // já começa preto, sem gap
+        p.freeze = false;
+        instance_destroy();
+    }
+
+    exit;
+}
+#endregion
+
+// ==========================================
+#region MOVIMENTO DA BATALHA (states 0, 1, 2)
+// ==========================================
 float_timer += float_spd;
-var cyclo_radius_x_dynamic = 30 + 50*hp_ratio + 100 / obj_camera.zoom_manual;
+var cyclo_radius_x_dynamic = 30 + 50 * hp_ratio + 100 / obj_camera.zoom_manual;
 var ang = float_timer * 2;
 var cyc_x = base_x + cos(ang) * cyclo_radius_x_dynamic;
 
-// X segue o player suavemente + flutuação
-var follow_speed = 0.08;
-x = lerp(x, p.x, follow_speed) + (cyc_x - base_x) * 0.08;
-
-// Y fixo
+x = lerp(x, p.x, 0.08) + (cyc_x - base_x) * 0.08;
 y = 1184;
+x = clamp(x, sprite_width / 2, room_width - sprite_width / 2);
+#endregion
 
-// clamp dentro da room
-x = clamp(x, sprite_width/2, room_width - sprite_width/2);
-
-// limpa mãos se player errou/acertou
+// ==========================================
+#region LIMPEZA DE MÃOS (acerto/erro)
+// ==========================================
 if (wrong_hand_hit || correct_hand_hit)
 {
-    with(obj_boss_hand_ground) instance_destroy();
-    with(obj_boss_hand_warning_ground) instance_destroy();
+    with (obj_boss_hand_ground) instance_destroy();
+    with (obj_boss_hand_warning_ground) instance_destroy();
     state = 0;
     state_timer = 0;
     hands_spawned = false;
@@ -81,12 +141,14 @@ if (wrong_hand_hit || correct_hand_hit)
 }
 #endregion
 
+// ==========================================
 #region ESTADOS DA BATALHA
-switch(state)
+// ==========================================
+switch (state)
 {
     case 0:
         sprite_index = spr_eye_open;
-        if (state_timer >= max(10, room_speed*1.2 - hp_lost*10))
+        if (state_timer >= max(10, room_speed * 1.2 - hp_lost * 10))
         {
             state = 1;
             state_timer = 0;
@@ -94,28 +156,30 @@ switch(state)
         }
     break;
 
-    case 1: // === case 1 que você mandou ===
+    case 1:
         sprite_index = spr_eye_closed;
         if (!hands_spawned && instance_exists(p))
         {
             hands_spawned = true;
-            var target_index = irandom(hand_count-1);
-            var start_offset = -300*(hand_count-1)/2;
+
+            var center_x = p.x;
+            var target_index = irandom(hand_count - 1);
+            var spacing = 400;
+            var start_offset = -spacing * (hand_count - 1) / 2;
 
             for (var i = 0; i < hand_count; i++)
             {
-                var offset_x = start_offset + i*300;
-                var spawn_x = battle_base_x + offset_x; // usa x fixo
+                var hand_x = center_x + start_offset + i * spacing;
+                hand_x = clamp(hand_x, 64, room_width - 64);
 
-                // spawn warning na posição final da mão (y fixo 1792)
-                var w = instance_create_depth(spawn_x, 1792, -15, obj_boss_hand_warning_ground);
-                w.spawn_x = spawn_x;              
-                w.spawn_y = 1792 + 220; // posição inicial da mão
-                w.target_y = 1792;       // posição final da mão
+                var w = instance_create_depth(hand_x, 1792, -15, obj_boss_hand_warning_ground);
+                w.spawn_x = hand_x;
+                w.spawn_y = 1792 + 220;
+                w.target_y = 1792;
                 w.owner = id;
                 w.is_target = (i == target_index);
-                w.warning_time = max(8, 45 - hp_lost*4);
-                w.hand_speed = 0.35 + hp_ratio*0.45;
+                w.warning_time = max(8, 45 - hp_lost * 4);
+                w.hand_speed = 0.35 + hp_ratio * 0.45;
             }
         }
         state = 2;
@@ -131,30 +195,26 @@ switch(state)
             hands_spawned = false;
         }
     break;
-
-    case 3:
-        image_angle = irandom_range(-4,4);
-        if (state_timer >= room_speed)
-            instance_destroy();
-    break;
 }
 #endregion
 
-#region MORTE
+// ==========================================
+#region CHECAR MORTE
+// ==========================================
 if (hp <= 0 && state != 3)
 {
     state = 3;
     state_timer = 0;
-    with(obj_boss_hand_ground) instance_destroy();
-    with(obj_boss_hand_warning_ground) instance_destroy();
-}
-#endregion
-
-#region DRAW FADE
-if (fade_alpha > 0)
-{
-    draw_set_alpha(fade_alpha);
-    draw_rectangle(0,0,room_width,room_height,false);
-    draw_set_alpha(1);
+    death_scale = 1;
+    death_angle = 0;
+    death_rot_speed = 0;
+    death_shake = 0;
+    death_flash = 0;
+    death_red = 0;
+    death_pulse = 0;
+    death_y_drift = 0;
+    pupila_scale = 1;
+    with (obj_boss_hand_ground) instance_destroy();
+    with (obj_boss_hand_warning_ground) instance_destroy();
 }
 #endregion

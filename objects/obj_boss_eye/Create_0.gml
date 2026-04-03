@@ -1,46 +1,53 @@
+/// Create Event — obj_boss_eye
+
+#region HP e Estado
 hp = 6;
 max_hp = 6;
-
-state = 0; // 0=aberto, 1=fechado/spawn warning, 2=esperando hands, 3=morto
+state = 99;
 state_timer = 0;
 hands_spawned = false;
 wrong_hand_hit = false;
 correct_hand_hit = false;
+#endregion
 
+#region Sprite e Posição
 sprite_index = spr_eye_open;
 image_speed = 0;
 depth = -50;
-
 base_x = x;
 base_y = y;
+var p_init = instance_find(obj_player, 0);
+player_ground_y = instance_exists(p_init) ? p_init.y : 800;
+#endregion
 
-// pega altura inicial do player para usar como "chão"
-var p_init = instance_find(obj_player,0);
-if (instance_exists(p_init)) player_ground_y = p_init.y;
-else player_ground_y = 800;
-
-// flutuação
+#region Flutuação
 float_timer = random(1000);
 float_spd = 0.02;
-
-// amplitude circular
 cyclo_radius_x = 30;
 cyclo_radius_y = 15;
+#endregion
 
-// pupila
+#region Pupila
 pupila_limit_x = 20;
 pupila_limit_y = 15;
 pupila_offset_y = 8;
+pupila_scale = 1;
+#endregion
 
-fade_alpha = 0;
-fade_speed = 0;
-battle_base_x = 0; // x fixo do player para spawn de mãos
+#region Spawn Cinematográfico
+fade_alpha = 1;
+fade_speed = -0.02;
+spawn_scale = 0.1;
+spawn_speed = 0.05;
+#endregion
 
-state = 99;
-state_timer = 0;
-fade_alpha = 0;
-fade_speed = 0.02;
-boss_speed = 2;       // descida lenta
-battle_base_x = 0;    // x fixo do player
-hands_spawned = false;
-
+#region Morte Épica
+death_shake = 0;
+death_angle = 0;
+death_rot_speed = 0;
+death_pulse = 0;
+death_flash = 0;
+death_red = 0;
+death_scale = 1;
+death_y_drift = 0;
+#endregion
