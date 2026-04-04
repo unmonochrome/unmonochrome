@@ -10,9 +10,9 @@
   },
   "defaultScriptType":1,
   "Folders":[
+    {"$GMFolder":"","%Name":"asset menu3","folderPath":"folders/asset menu3.yy","name":"asset menu3","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"assets menu","folderPath":"folders/assets menu.yy","name":"assets menu","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"assets menu2","folderPath":"folders/assets menu2.yy","name":"assets menu2","resourceType":"GMFolder","resourceVersion":"2.0",},
-    {"$GMFolder":"","%Name":"asset menu3","folderPath":"folders/asset menu3.yy","name":"asset menu3","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"fontes","folderPath":"folders/fontes.yy","name":"fontes","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj_botoes","folderPath":"folders/obj_botoes.yy","name":"obj_botoes","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj_controladores","folderPath":"folders/obj_controladores.yy","name":"obj_controladores","resourceType":"GMFolder","resourceVersion":"2.0",},
@@ -21,6 +21,7 @@
     {"$GMFolder":"","%Name":"player animaton","folderPath":"folders/player animaton.yy","name":"player animaton","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"snd","folderPath":"folders/snd.yy","name":"snd","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"spr","folderPath":"folders/spr.yy","name":"spr","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"sprites mao do olho","folderPath":"folders/sprites mao do olho.yy","name":"sprites mao do olho","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"sprites olhoboss","folderPath":"folders/sprites olhoboss.yy","name":"sprites olhoboss","resourceType":"GMFolder","resourceVersion":"2.0",},
   ],
   "ForcedPrefabProjectReferences":[
@@ -108,6 +109,7 @@
     {"id":{"name":"spr_johnmenu3luz","path":"sprites/spr_johnmenu3luz/spr_johnmenu3luz.yy",},},
     {"id":{"name":"spr_layer3","path":"sprites/spr_layer3/spr_layer3.yy",},},
     {"id":{"name":"spr_luzjohnmenu2","path":"sprites/spr_luzjohnmenu2/spr_luzjohnmenu2.yy",},},
+    {"id":{"name":"spr_maochao","path":"sprites/spr_maochao/spr_maochao.yy",},},
     {"id":{"name":"spr_opcoes","path":"sprites/spr_opcoes/spr_opcoes.yy",},},
     {"id":{"name":"spr_player_attack","path":"sprites/spr_player_attack/spr_player_attack.yy",},},
     {"id":{"name":"spr_player_attack1","path":"sprites/spr_player_attack1/spr_player_attack1.yy",},},
@@ -127,10 +129,10 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
+    {"roomId":{"name":"rm_boss_olho","path":"rooms/rm_boss_olho/rm_boss_olho.yy",},},
     {"roomId":{"name":"rm_menu","path":"rooms/rm_menu/rm_menu.yy",},},
     {"roomId":{"name":"rm_fase1","path":"rooms/rm_fase1/rm_fase1.yy",},},
     {"roomId":{"name":"rm_teste","path":"rooms/rm_teste/rm_teste.yy",},},
-    {"roomId":{"name":"rm_boss_olho","path":"rooms/rm_boss_olho/rm_boss_olho.yy",},},
     {"roomId":{"name":"rm_opcoes","path":"rooms/rm_opcoes/rm_opcoes.yy",},},
     {"roomId":{"name":"rm_creditos","path":"rooms/rm_creditos/rm_creditos.yy",},},
   ],

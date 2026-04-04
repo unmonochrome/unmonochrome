@@ -1,14 +1,21 @@
-#region Draw
+/// Draw Event — obj_boss_hand_ground
 
-if (state == 0)
+// respeita depth
+event_inherited();
+
+if (!variable_instance_exists(id, "fade_alpha"))
 {
-    draw_set_alpha(0.5);
-    draw_set_color(c_red);
-    draw_circle(x, target_y, 30, false);
-    draw_set_alpha(1);
-    draw_set_color(c_white);
+    fade_alpha = 1;
 }
 
-draw_self();
+var target_size = 128;
+var sprite_w = sprite_get_width(sprite_index);
+var scale = target_size / sprite_w;
 
-#endregion
+draw_sprite_ext(
+    sprite_index, image_index,
+    x, y,
+    scale, scale,
+    image_angle,
+    c_white, fade_alpha
+);

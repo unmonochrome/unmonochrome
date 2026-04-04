@@ -157,34 +157,34 @@ switch (state)
     break;
 
     case 1:
-        sprite_index = spr_eye_closed;
-        if (!hands_spawned && instance_exists(p))
+    sprite_index = spr_eye_closed;
+    if (!hands_spawned && instance_exists(p))
+    {
+        hands_spawned = true;
+
+        var center_x = p.x;
+        var target_index = irandom(hand_count - 1);
+        var spacing = 300;
+        var start_offset = -spacing * (hand_count - 1) / 2;
+
+        for (var i = 0; i < hand_count; i++)
         {
-            hands_spawned = true;
+            var hand_x = center_x + start_offset + i * spacing;
+            hand_x = clamp(hand_x, 64, room_width - 64);
 
-            var center_x = p.x;
-            var target_index = irandom(hand_count - 1);
-            var spacing = 400;
-            var start_offset = -spacing * (hand_count - 1) / 2;
-
-            for (var i = 0; i < hand_count; i++)
-            {
-                var hand_x = center_x + start_offset + i * spacing;
-                hand_x = clamp(hand_x, 64, room_width - 64);
-
-                var w = instance_create_depth(hand_x, 1792, -15, obj_boss_hand_warning_ground);
-                w.spawn_x = hand_x;
-                w.spawn_y = 1792 + 220;
-                w.target_y = 1792;
-                w.owner = id;
-                w.is_target = (i == target_index);
-                w.warning_time = max(8, 45 - hp_lost * 4);
-                w.hand_speed = 0.35 + hp_ratio * 0.45;
-            }
+            var w = instance_create_layer(hand_x, 1792, "inimigos", obj_boss_hand_warning_ground);
+            w.spawn_x = hand_x;
+            w.spawn_y = 1792 + 220;
+            w.target_y = 1792;
+            w.owner = id;
+            w.is_target = (i == target_index);
+            w.warning_time = max(8, 45 - hp_lost * 4);
+            w.hand_speed = 0.35 + hp_ratio * 0.45;
         }
-        state = 2;
-        state_timer = 0;
-    break;
+    }
+    state = 2;
+    state_timer = 0;
+break;
 
     case 2:
         sprite_index = spr_eye_closed;

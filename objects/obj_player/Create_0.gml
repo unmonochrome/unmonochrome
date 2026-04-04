@@ -73,3 +73,4 @@ transition_alpha = 0;
 transition_speed = 0.02;
 transition_target_room = noone;
 #endregion
+
