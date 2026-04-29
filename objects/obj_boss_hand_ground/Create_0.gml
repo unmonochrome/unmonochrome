@@ -19,4 +19,4 @@ can_be_hit = false; // só pode bater quando chega na posição final
 // sprite
 sprite_index = spr_hand_ground;
 image_speed = 0;
-depth = -16;
+depth = 16;

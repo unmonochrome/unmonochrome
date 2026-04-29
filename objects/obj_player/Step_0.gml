@@ -7,10 +7,11 @@ if (hurt_timer > 0) hurt_timer--;
 if (invincible > 0) invincible--;
 if (hitstun > 0) hitstun--;
 if (atk_cd > 0) atk_cd--;
+if (step_timer > 0) step_timer--;
 #endregion
 
 // ==========================================
-#region FREEZE (boss cutscenes)
+#region FREEZE
 // ==========================================
 if (freeze)
 {
@@ -45,6 +46,8 @@ var key_right  = keyboard_check(vk_right);
 var key_jump   = keyboard_check_pressed(ord("Z"));
 var key_attack = keyboard_check_pressed(ord("C"));
 var key_run    = keyboard_check(ord("X"));
+
+var move = key_right - key_left;
 #endregion
 
 // ==========================================
@@ -56,6 +59,7 @@ if (death_anim)
 
     if (vspd < 0) vspd += 0.2;
     else vspd += 0.1;
+
     vspd = clamp(vspd, -4, 3);
 
     hspd = 0;
@@ -107,15 +111,12 @@ if (dead)
 #endregion
 
 // ==========================================
-#region INPUT
-// ==========================================
-var move = key_right - key_left;
-#endregion
-
-// ==========================================
 #region FACING
 // ==========================================
-if (move != 0 && hitstun <= 0 && !attacking) facing = sign(move);
+if (move != 0 && hitstun <= 0 && !attacking)
+{
+    facing = sign(move);
+}
 #endregion
 
 // ==========================================
@@ -125,7 +126,7 @@ if (move != 0 && on_ground && hitstun <= 0)
 {
     run_timer++;
 }
-else if (move == 0 && on_ground)
+else if (on_ground)
 {
     run_timer = 0;
 }
@@ -144,36 +145,58 @@ if (key_run && hitstun <= 0)
 {
     run_multiplier = 1.6;
 }
+
+var final_max_speed = current_max_speed * run_multiplier;
 #endregion
 
 // ==========================================
 #region MOVEMENT
 // ==========================================
-var accel_ground = 0.5;
-var accel_air = 0.2;
-var decel_ground = 0.4;
-var decel_air = 0.1;
+var accel_ground = 0.7;
+var accel_air = 0.3;
+
+var decel_ground = 0.9;
+var decel_air = 0.15;
 
 if (hitstun > 0)
 {
     hspd = knockback_x;
-    if (abs(knockback_x) > 0.1) knockback_x *= 0.85;
-    else knockback_x = 0;
+
+    if (abs(knockback_x) > 0.1)
+        knockback_x *= 0.85;
+    else
+        knockback_x = 0;
 }
 else if (!attacking)
 {
     if (move != 0)
     {
-        if (on_ground) hspd += move * accel_ground;
-        else hspd += move * accel_air;
+        if (on_ground)
+        {
+            hspd += move * accel_ground;
+        }
+        else
+        {
+            hspd += move * accel_air;
+        }
     }
     else
     {
-        if (abs(hspd) > 0)
+        if (on_ground)
         {
-            if (on_ground) hspd -= sign(hspd) * decel_ground;
-            else hspd -= sign(hspd) * decel_air;
-            if (abs(hspd) < 0.1) hspd = 0;
+            // chão: para rápido, sem escorregar
+            hspd = lerp(hspd, 0, decel_ground);
+
+            if (abs(hspd) < 0.08)
+                hspd = 0;
+        }
+        else
+        {
+            // ar: desacelera menos
+            hspd = lerp(hspd, 0, decel_air);
+
+            if (abs(hspd) < 0.05)
+                hspd = 0;
         }
     }
 }
@@ -182,9 +205,9 @@ else if (!attacking)
 // ==========================================
 #region TURN CONTROL
 // ==========================================
-if (hitstun <= 0 && move != 0 && sign(move) != sign(hspd))
+if (hitstun <= 0 && move != 0 && abs(hspd) > 0.1 && sign(move) != sign(hspd))
 {
-    hspd *= 0.7;
+    hspd *= 0.55;
 }
 #endregion
 
@@ -193,7 +216,7 @@ if (hitstun <= 0 && move != 0 && sign(move) != sign(hspd))
 // ==========================================
 if (hitstun <= 0)
 {
-    hspd = clamp(hspd, -current_max_speed * run_multiplier, current_max_speed * run_multiplier);
+    hspd = clamp(hspd, -final_max_speed, final_max_speed);
 }
 #endregion
 
@@ -244,8 +267,10 @@ if (attacking)
 {
     attack_timer--;
 
-    // freia mas não trava totalmente
-    hspd *= 0.8;
+    if (on_ground)
+        hspd = lerp(hspd, 0, 0.25);
+    else
+        hspd *= 0.92;
 
     if (attack_timer <= 0)
     {
@@ -308,11 +333,10 @@ if (hp <= 0 && !dead && !death_anim)
 // ==========================================
 if (!death_anim && !dead)
 {
-    if (y > room_height + 100) hp = 0;
+    if (y > room_height + 100)
+        hp = 0;
 }
 #endregion
-
-// ==========================================
 
 // ==========================================
 #region H COLLISION
@@ -325,10 +349,12 @@ if (!death_anim)
         {
             x += sign(hspd);
         }
+
         hspd = 0;
         knockback_x = 0;
     }
 }
+
 x += hspd;
 #endregion
 
@@ -345,9 +371,11 @@ if (!death_anim)
         {
             y += sign(vspd);
         }
+
         if (vspd > 0) on_ground = true;
         vspd = 0;
     }
+
     y += vspd;
 }
 else
@@ -359,10 +387,6 @@ else
 // ==========================================
 #region FOOTSTEPS
 // ==========================================
-audio_sound_gain(snd_step, 0.3, 0);
-
-if (step_timer > 0) step_timer--;
-
 var is_moving = (abs(hspd) > 0.5) && on_ground && !death_anim && !dead;
 
 if (!is_moving)
@@ -372,11 +396,13 @@ if (!is_moving)
         audio_stop_sound(step_sound_id);
         step_sound_id = -1;
     }
+
     step_timer = 0;
 }
 else
 {
     var step_interval = step_interval_walk;
+
     if (key_run && abs(hspd) > walkspd)
     {
         step_interval = step_interval_run;
@@ -384,14 +410,15 @@ else
 
     if (step_timer <= 0)
     {
-        if (step_sound_id != -1) audio_stop_sound(step_sound_id);
+        if (step_sound_id != -1)
+            audio_stop_sound(step_sound_id);
+
         step_sound_id = audio_play_sound(snd_step, 1, false);
         step_timer = step_interval;
     }
 }
 #endregion
 
-// ==========================================
 // ==========================================
 #region SPRITE / VISUAL
 // ==========================================
@@ -415,6 +442,7 @@ else if (attacking)
         sprite_index = spr_player_attack1;
         image_index = 0;
     }
+
     image_speed = 1;
 }
 else
@@ -430,7 +458,9 @@ else
         if (vspd < 0)
         {
             image_speed = 0.25;
-            if (image_index > 2) image_index = 2;
+
+            if (image_index > 2)
+                image_index = 2;
         }
         else
         {
@@ -446,15 +476,10 @@ else
             image_index = 0;
         }
 
-        // correndo = velocidade normal, andando = metade
         if (key_run && abs(hspd) > walkspd)
-        {
             image_speed = 1;
-        }
         else
-        {
             image_speed = 0.8;
-        }
     }
     else
     {
@@ -463,6 +488,7 @@ else
             sprite_index = spr_player_idle;
             image_index = 0;
         }
+
         image_speed = 1;
     }
 }
