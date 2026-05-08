@@ -1,3 +1,5 @@
+/// Step Event — obj_cameramenu
+
 #region MENU CAMERA MOTION
 
 wave += 0.02;

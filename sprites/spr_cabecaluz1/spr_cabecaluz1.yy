@@ -2,9 +2,9 @@
   "$GMSprite":"v2",
   "%Name":"spr_cabecaluz1",
   "bboxMode":0,
-  "bbox_bottom":647,
+  "bbox_bottom":452,
   "bbox_left":0,
-  "bbox_right":465,
+  "bbox_right":325,
   "bbox_top":0,
   "collisionKind":1,
   "collisionTolerance":0,
@@ -16,7 +16,7 @@
   ],
   "gridX":0,
   "gridY":0,
-  "height":648,
+  "height":453,
   "HTile":false,
   "layers":[
     {"$GMImageLayer":"","%Name":"fdb8e717-cb5f-4310-a745-704356dafa98","blendMode":0,"displayName":"default","isLocked":false,"name":"fdb8e717-cb5f-4310-a745-704356dafa98","opacity":100.0,"resourceType":"GMImageLayer","resourceVersion":"2.0","visible":true,},
@@ -86,5 +86,5 @@
   },
   "type":0,
   "VTile":false,
-  "width":466,
+  "width":326,
 }

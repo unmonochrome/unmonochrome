@@ -1,9 +1,15 @@
-// tamanho da câmera
-cam_w = 1280;
-cam_h = 960;
+/// Create Event — obj_camera
+
+// Tamanho da câmera (16:9 HD)
+cam_w = 1600;
+cam_h = 900;
+
+// IMPORTANTE: Define que a interface (UI) vai usar essa resolução também
+display_set_gui_size(cam_w, cam_h);
 
 // cria camera
 cam = camera_create_view(0, 0, cam_w, cam_h, 0, noone, 0, 0, 0, 0);
+
 view_enabled = true;
 view_visible[0] = true;
 view_set_camera(0, cam);
@@ -20,9 +26,9 @@ shake_time = 0;
 shake_strength = 0;
 
 // zoom
-zoom_manual = 1;  // zoom controlado pelo teclado
+zoom_manual = 1;
 zoom_current = 1;
-zoom_target = 1;  // usado internamente
+zoom_target = 1;
 zoom_run = 1;
 zoom_speed = 0.2;
 
@@ -33,4 +39,4 @@ rot_speed = 0.2;
 
 // lookahead
 look_offset_x = 0;
-cam_offset_y = -200;
+cam_offset_y = -360; // Pode precisar ajustar isso, pois a tela ficou mais "baixa"

@@ -1,5 +1,11 @@
-cam_w = 1280;
-cam_h = 960;
+/// Create Event — obj_cameramenu
+
+// Tamanho da câmera (16:9) — mesma resolução do jogo
+cam_w = 1600;
+cam_h = 900;
+
+// Define GUI também
+display_set_gui_size(cam_w, cam_h);
 
 cam = camera_create_view(0, 0, cam_w, cam_h, 0, noone, 0, 0, 0, 0);
 

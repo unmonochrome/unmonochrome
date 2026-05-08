@@ -13,24 +13,24 @@ head_light_sprite[1] = spr_cabecaluz2;
 head_light_sprite[2] = spr_cabecaluz3;
 
 // posições finais das cabeças
-head_x[0] = 874;
+head_x[0] = 874 + 118;
 head_target_y[0] = 177;
 
-head_x[1] = 474;
-head_target_y[1] = 365;
+head_x[1] = 715;
+head_target_y[1] = 306;
 
-head_x[2] = 300;
-head_target_y[2] = 477;
+head_x[2] = 594;
+head_target_y[2] = 382;
 
 // posições das luzes
-head_light_x[0] = 814;
+head_light_x[0] = 951;
 head_light_y[0] = 177;
 
-head_light_x[1] = 411;
-head_light_y[1] = 365;
+head_light_x[1] = 670;
+head_light_y[1] = 306;
 
-head_light_x[2] = 224;
-head_light_y[2] = 477;
+head_light_x[2] = 541;
+head_light_y[2] = 384;
 
 // estado inicial (fora da tela)
 for (var i = 0; i < head_count; i++)

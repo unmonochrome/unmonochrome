@@ -1,37 +1,31 @@
+/// Create Event — obj_bg_menu2
+
 depth = 100;
 
 #region Active
-
 active = false;
-
 #endregion
 
-
 #region Sprites
-
 bg_sprite = spr_fundomenu2;
 john_sprite = spr_johnmenu2;
 john_light_sprite = spr_luzjohnmenu2;
-
 #endregion
-
 
 #region Fundo
-
 bg_x = 0;
 bg_y = 0;
-
 #endregion
 
-
 #region Reset Function
-
 reset_intro = function()
 {
-    john_target_x = 0;
+    // Mantendo a mesma posição (0,0) do original
+    john_target_x = 192;
     john_target_y = 0;
 
-    john_x = room_width;
+    // Começa fora da tela à direita
+    john_x = 1600;  // era room_width, agora explícito
     john_y = 0;
 
     john_intro_done = false;
@@ -55,5 +49,4 @@ reset_intro = function()
 };
 
 reset_intro();
-
 #endregion

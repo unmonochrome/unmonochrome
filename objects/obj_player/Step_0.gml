@@ -39,13 +39,44 @@ if (transitioning)
 #endregion
 
 // ==========================================
-#region CONTROLS
+#region CONTROLS — TECLADO + CONTROLE
 // ==========================================
+// Teclado
 var key_left   = keyboard_check(vk_left);
 var key_right  = keyboard_check(vk_right);
 var key_jump   = keyboard_check_pressed(ord("Z"));
 var key_attack = keyboard_check_pressed(ord("C"));
 var key_run    = keyboard_check(ord("X"));
+
+// Controle Xbox (gamepad 0)
+var gp_connected = gamepad_is_connected(0);
+
+if (gp_connected)
+{
+    // D-pad
+    var gp_left  = gamepad_button_check(0, gp_padl);
+    var gp_right = gamepad_button_check(0, gp_padr);
+    
+    // Analógico esquerdo
+    var gp_axis_h = gamepad_axis_value(0, gp_axislh);
+    var deadzone = 0.3;
+    
+    // Considera analógico se passar da deadzone
+    var analog_left  = (gp_axis_h < -deadzone);
+    var analog_right = (gp_axis_h > deadzone);
+    
+    // Botões
+    var gp_jump   = gamepad_button_check_pressed(0, gp_face1); // A
+    var gp_run    = gamepad_button_check(0, gp_face2);          // B
+    var gp_attack = gamepad_button_check_pressed(0, gp_face3);  // X
+    
+    // Combina teclado + controle
+    key_left   = key_left   || gp_left  || analog_left;
+    key_right  = key_right  || gp_right || analog_right;
+    key_jump   = key_jump   || gp_jump;
+    key_attack = key_attack || gp_attack;
+    key_run    = key_run    || gp_run;
+}
 
 var move = key_right - key_left;
 #endregion
@@ -86,7 +117,15 @@ if (dead)
     hspd = 0;
     vspd = 0;
 
-    if (keyboard_check_pressed(ord("Z")))
+    // Aceita Z do teclado ou A do controle pra reviver
+    var respawn_input = keyboard_check_pressed(ord("Z"));
+    
+    if (gp_connected)
+    {
+        respawn_input = respawn_input || gamepad_button_check_pressed(0, gp_face1);
+    }
+
+    if (respawn_input)
     {
         x = global.spawn_x;
         y = global.spawn_y;
@@ -284,12 +323,10 @@ if (attacking)
 // ==========================================
 var enemy = instance_place(x, y, obj_enemy);
 var boss_hand = instance_place(x, y, obj_boss_hand_ground);
-var falling_hand = instance_place(x, y, obj_boss_hand_fall);
 
 var attacker = noone;
 if (enemy != noone) attacker = enemy;
 if (boss_hand != noone) attacker = boss_hand;
-if (falling_hand != noone) attacker = falling_hand;
 
 if (attacker != noone && invincible <= 0)
 {
@@ -422,14 +459,14 @@ else
 // ==========================================
 #region SPRITE / VISUAL
 // ==========================================
-var base_scale = 0.3;
+var base_scale = 0.35;
 
 image_xscale = base_scale * facing;
 image_yscale = base_scale;
 
 if (dead)
 {
-    // nada
+    // mantém sprite atual
 }
 else if (death_anim)
 {

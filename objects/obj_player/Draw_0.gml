@@ -37,3 +37,18 @@ if (transitioning && transition_alpha > 0)
 }
 
 #endregion
+
+#region BLACK AND WHITE
+
+shader_set(shd_saturation);
+
+shader_set_uniform_f(
+    shader_get_uniform(shd_saturation, "saturation"),
+    0.0
+);
+
+draw_self();
+
+shader_reset();
+
+#endregion

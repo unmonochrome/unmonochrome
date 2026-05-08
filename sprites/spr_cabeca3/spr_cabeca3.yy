@@ -2,9 +2,9 @@
   "$GMSprite":"v2",
   "%Name":"spr_cabeca3",
   "bboxMode":0,
-  "bbox_bottom":409,
+  "bbox_bottom":287,
   "bbox_left":0,
-  "bbox_right":304,
+  "bbox_right":213,
   "bbox_top":0,
   "collisionKind":1,
   "collisionTolerance":0,
@@ -16,7 +16,7 @@
   ],
   "gridX":0,
   "gridY":0,
-  "height":410,
+  "height":288,
   "HTile":false,
   "layers":[
     {"$GMImageLayer":"","%Name":"8d048335-8d90-494e-b045-3a29f050de02","blendMode":0,"displayName":"default","isLocked":false,"name":"8d048335-8d90-494e-b045-3a29f050de02","opacity":100.0,"resourceType":"GMImageLayer","resourceVersion":"2.0","visible":true,},
@@ -86,5 +86,5 @@
   },
   "type":0,
   "VTile":false,
-  "width":305,
+  "width":214,
 }

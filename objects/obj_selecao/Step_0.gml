@@ -1,19 +1,77 @@
-#region INPUT
+/// Step Event — obj_selecao
 
-if (keyboard_check_pressed(vk_up))
+#region INPUT — TECLADO + CONTROLE
+
+// Teclado
+var key_up    = keyboard_check_pressed(vk_up);
+var key_down  = keyboard_check_pressed(vk_down);
+var key_confirm = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(ord("Z"));
+
+// Controle Xbox
+var gp_connected = gamepad_is_connected(0);
+
+if (gp_connected)
+{
+    // D-pad
+    var gp_up   = gamepad_button_check_pressed(0, gp_padu);
+    var gp_down = gamepad_button_check_pressed(0, gp_padd);
+    
+    // Analógico esquerdo (com deadzone)
+    var gp_axis_v = gamepad_axis_value(0, gp_axislv);
+    var deadzone = 0.5;
+    
+    var analog_up = false;
+    var analog_down = false;
+    
+    if (gp_axis_v < -deadzone)
+    {
+        if (!variable_instance_exists(id, "analog_was_up") || analog_was_up == false)
+        {
+            analog_up = true;
+            analog_was_up = true;
+        }
+    }
+    else
+    {
+        analog_was_up = false;
+    }
+    
+    if (gp_axis_v > deadzone)
+    {
+        if (!variable_instance_exists(id, "analog_was_down") || analog_was_down == false)
+        {
+            analog_down = true;
+            analog_was_down = true;
+        }
+    }
+    else
+    {
+        analog_was_down = false;
+    }
+    
+    // Botão A para confirmar
+    var gp_confirm = gamepad_button_check_pressed(0, gp_face1);
+    
+    // Combina inputs
+    key_up = key_up || gp_up || analog_up;
+    key_down = key_down || gp_down || analog_down;
+    key_confirm = key_confirm || gp_confirm;
+}
+
+// Navegação
+if (key_up)
 {
     menu_index--;
     if (menu_index < 0) menu_index = menu_total - 1;
 }
 
-if (keyboard_check_pressed(vk_down))
+if (key_down)
 {
     menu_index++;
     if (menu_index >= menu_total) menu_index = 0;
 }
 
 #endregion
-
 
 #region BACKGROUND SWITCH
 
@@ -50,7 +108,6 @@ if (menu_index != previous_menu_index)
 
 #endregion
 
-
 #region SELETOR FRAME
 
 // menu normal = frame 0
@@ -58,7 +115,6 @@ if (menu_index != previous_menu_index)
 image_index = (menu_index == 1) ? 1 : 0;
 
 #endregion
-
 
 #region COR DOS BOTÕES
 
@@ -74,7 +130,6 @@ with (obj_btn_sair)     image_blend = base_color;
 
 #endregion
 
-
 #region BOTÃO ATUAL
 
 var target_button = noone;
@@ -88,7 +143,6 @@ switch (menu_index)
 }
 
 #endregion
-
 
 #region SEGUIR + COR SELECIONADA
 
@@ -117,10 +171,9 @@ y = lerp(y, target_y, follow_spd);
 
 #endregion
 
-
 #region CONFIRMAR
 
-if (keyboard_check_pressed(vk_enter))
+if (key_confirm)
 {
     if (instance_exists(target_button))
     {

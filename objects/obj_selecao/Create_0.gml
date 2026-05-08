@@ -1,3 +1,5 @@
+/// Create Event — obj_selecao
+
 #region Setup
 
 menu_index = 0;
@@ -14,4 +16,5 @@ follow_spd = 0.25;
 image_speed = 0;
 
 #endregion
+
 depth = 0;

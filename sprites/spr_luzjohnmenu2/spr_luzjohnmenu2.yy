@@ -2,9 +2,9 @@
   "$GMSprite":"v2",
   "%Name":"spr_luzjohnmenu2",
   "bboxMode":0,
-  "bbox_bottom":950,
-  "bbox_left":88,
-  "bbox_right":1279,
+  "bbox_bottom":807,
+  "bbox_left":75,
+  "bbox_right":1087,
   "bbox_top":0,
   "collisionKind":1,
   "collisionTolerance":0,
@@ -16,7 +16,7 @@
   ],
   "gridX":0,
   "gridY":0,
-  "height":960,
+  "height":816,
   "HTile":false,
   "layers":[
     {"$GMImageLayer":"","%Name":"0a6e20ba-ec24-4fad-a154-f8e40d0ba5a4","blendMode":0,"displayName":"default","isLocked":false,"name":"0a6e20ba-ec24-4fad-a154-f8e40d0ba5a4","opacity":100.0,"resourceType":"GMImageLayer","resourceVersion":"2.0","visible":true,},
@@ -86,5 +86,5 @@
   },
   "type":0,
   "VTile":false,
-  "width":1280,
+  "width":1088,
 }

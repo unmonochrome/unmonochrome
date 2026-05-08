@@ -23,7 +23,7 @@ reset_intro = function()
     john_target_x = 0;
     john_target_y = 0;
 
-    john_x = room_width;
+    john_x = 1600;  // era room_width, agora explícito
     john_y = 0;
 
     john_intro_done = false;
