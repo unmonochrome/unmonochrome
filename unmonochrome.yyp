@@ -14,7 +14,6 @@
     {"$GMFolder":"","%Name":"assets menu","folderPath":"folders/assets menu.yy","name":"assets menu","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"assets menu2","folderPath":"folders/assets menu2.yy","name":"assets menu2","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"fontes","folderPath":"folders/fontes.yy","name":"fontes","resourceType":"GMFolder","resourceVersion":"2.0",},
-    {"$GMFolder":"","%Name":"sprites finais olho","folderPath":"folders/sprites finais olho.yy","name":"sprites finais olho","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj_botoes","folderPath":"folders/obj_botoes.yy","name":"obj_botoes","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj_controladores","folderPath":"folders/obj_controladores.yy","name":"obj_controladores","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"obj","folderPath":"folders/obj.yy","name":"obj","resourceType":"GMFolder","resourceVersion":"2.0",},
@@ -24,6 +23,7 @@
     {"$GMFolder":"","%Name":"snd","folderPath":"folders/snd.yy","name":"snd","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"spr","folderPath":"folders/spr.yy","name":"spr","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"sprite cenario1","folderPath":"folders/sprite cenario1.yy","name":"sprite cenario1","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"sprites finais olho","folderPath":"folders/sprites finais olho.yy","name":"sprites finais olho","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"sprites mao do olho","folderPath":"folders/sprites mao do olho.yy","name":"sprites mao do olho","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"sprites olhoboss","folderPath":"folders/sprites olhoboss.yy","name":"sprites olhoboss","resourceType":"GMFolder","resourceVersion":"2.0",},
   ],
@@ -151,9 +151,9 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
+    {"roomId":{"name":"rm_boss_olho","path":"rooms/rm_boss_olho/rm_boss_olho.yy",},},
     {"roomId":{"name":"rm_menu","path":"rooms/rm_menu/rm_menu.yy",},},
     {"roomId":{"name":"rm_fase1","path":"rooms/rm_fase1/rm_fase1.yy",},},
-    {"roomId":{"name":"rm_boss_olho","path":"rooms/rm_boss_olho/rm_boss_olho.yy",},},
   ],
   "templateType":"game",
   "TextureGroups":[

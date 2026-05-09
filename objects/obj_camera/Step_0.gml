@@ -1,22 +1,23 @@
+/// Step Event — obj_camera
+
 #region GET PLAYER
 if (!instance_exists(target)) exit;
 var _player = instance_nearest(x, y, target);
 #endregion
 
 #region ZOOM MANUAL COM TECLADO (segurar)
-var zoom_speed_manual = 0.02; // quanto o zoom muda por Step
+var zoom_speed_manual = 0.02;
 
-// aumentar zoom
-if (keyboard_check(vk_add) || keyboard_check(ord("=")) || keyboard_check(ord("+"))) {
+if (keyboard_check(vk_add) || keyboard_check(ord("=")) || keyboard_check(ord("+")))
+{
     zoom_manual += zoom_speed_manual;
 }
 
-// diminuir zoom
-if (keyboard_check(vk_subtract) || keyboard_check(ord("-"))) {
+if (keyboard_check(vk_subtract) || keyboard_check(ord("-")))
+{
     zoom_manual -= zoom_speed_manual;
 }
 
-// limitar zoom
 zoom_manual = clamp(zoom_manual, 0.5, 2);
 #endregion
 
@@ -45,36 +46,149 @@ x = lerp(x, target_x, smooth);
 y = lerp(y, target_y, smooth_y);
 #endregion
 
+// ==========================================
+#region BOSS CAMERA TENSION SYSTEM
+// ==========================================
+
+var boss = instance_find(obj_boss_eye, 0);
+
+if (instance_exists(boss) && boss.state != 99 && boss.state != 3)
+{
+    boss_tension_active = true;
+    
+    // 1. BASE: Respiração lenta
+    var breath_t = current_time * 0.001;
+    var breath_x = sin(breath_t * 0.7) * 2;
+    var breath_y = cos(breath_t * 0.5) * 1.5;
+    
+    // 2. INTENSIDADE POR HP
+    var hp_ratio = boss.hp / boss.max_hp;
+    var panic_level = 1 - hp_ratio;
+    
+    // 3. SHAKE NERVOSO
+    var nervous_x = random_range(-1, 1) * panic_level * 3;
+    var nervous_y = random_range(-0.8, 0.8) * panic_level * 2;
+    
+    // 4. PULSO CARDÍACO
+    boss_heartbeat_timer += 1;
+    
+    var beat_speed = lerp(90, 25, panic_level);
+    
+    if (boss_heartbeat_timer >= beat_speed)
+    {
+        boss_heartbeat_timer = 0;
+        boss_heartbeat_pulse = 1;
+        
+        shake_time = 3;
+        shake_strength = 1 + panic_level * 2;
+    }
+    
+    boss_heartbeat_pulse = lerp(boss_heartbeat_pulse, 0, 0.2);
+    
+    // 5. ZOOM SUFOCANTE
+    var tension_zoom = sin(breath_t * 1.5) * 0.01 * (1 + panic_level);
+    zoom_target += tension_zoom;
+    
+    // 6. APLICAR TUDO
+    x += breath_x + nervous_x + (boss_heartbeat_pulse * 4);
+    y += breath_y + nervous_y + (boss_heartbeat_pulse * 3);
+    
+    // 7. ROTAÇÃO SUTIL (DIMINUÍDA)
+    var unease_rotation = sin(breath_t * 0.4) * 0.08 * panic_level; // ← ERA 0.3
+    rot_target += unease_rotation;
+}
+else
+{
+    // Reset quando não tem boss
+    boss_tension_active = false;
+    boss_heartbeat_timer = 0;
+    boss_heartbeat_pulse = 0;
+    
+    // Reseta rotação suavemente
+    rot_target = lerp(rot_target, 0, 0.1);
+}
+
+#endregion
+
 #region SHAKE
-if (shake_time > 0) {
+if (shake_time > 0)
+{
     shake_time--;
-} else {
+}
+else
+{
     shake_strength = 0;
 }
 
 var shake_x = 0;
 var shake_y = 0;
-if (shake_time > 0) {
+if (shake_time > 0)
+{
     shake_x = random_range(-shake_strength, shake_strength);
     shake_y = random_range(-shake_strength, shake_strength);
 }
+#endregion
+
+// ==========================================
+#region BOSS HANDS ZOOM OUT
+// ==========================================
+
+var boss = instance_find(obj_boss_eye, 0);
+
+// Conta quantas mãos ativas tem
+var hand_count = instance_number(obj_boss_hand_ground) + instance_number(obj_boss_hand_warning_ground);
+
+if (hand_count > 0 && instance_exists(boss))
+{
+    boss_hands_active = true;
+    
+    // Zoom out baseado no número de mãos
+    // 3 mãos = 0.90x (10% mais longe)
+    // 7 mãos = 0.75x (25% mais longe)
+    var zoom_factor = clamp(1 - (hand_count * 0.035), 0.75, 1);
+    
+    boss_zoom_out_target = zoom_factor;
+}
+else
+{
+    boss_hands_active = false;
+    boss_zoom_out_target = 1; // volta ao normal
+}
+
+// Suaviza transição do zoom
+boss_zoom_out = lerp(boss_zoom_out, boss_zoom_out_target, 0.08);
+
 #endregion
 
 #region ZOOM E ROTAÇÃO
 var shake_zoom = 1;
 var shake_rot = 0;
 
-if (shake_time > 0) {
+if (shake_time > 0)
+{
     shake_zoom = 1.03;
     shake_rot = random_range(-1.2, 1.2);
 }
 
-rot_target = shake_rot;
+rot_target += shake_rot;
 
-// zoom final = manual * corrida * shake
+// ADICIONA O ZOOM DAS MÃOS AQUI ↓
+var final_zoom_target = zoom_manual * zoom_run * shake_zoom * boss_zoom_out; // ← ADICIONE boss_zoom_out
+
+zoom_current = lerp(zoom_current, final_zoom_target, zoom_speed);
+rot_current = lerp(rot_current, rot_target, rot_speed);
+#endregion
+
+if (shake_time > 0)
+{
+    shake_zoom = 1.03;
+    shake_rot = random_range(-1.2, 1.2);
+}
+
+rot_target += shake_rot;
+
 var final_zoom_target = zoom_manual * zoom_run * shake_zoom;
 
-// suaviza
 zoom_current = lerp(zoom_current, final_zoom_target, zoom_speed);
 rot_current = lerp(rot_current, rot_target, rot_speed);
 #endregion
@@ -85,11 +199,9 @@ var view_h = cam_h / zoom_current;
 var cam_x = x - view_w / 2 + shake_x;
 var cam_y = y - view_h / 2 + shake_y;
 
-// limitar dentro da room
 cam_x = clamp(cam_x, 0, room_width - view_w);
 cam_y = clamp(cam_y, 0, room_height - view_h);
 
-// pixel perfect
 cam_x = floor(cam_x);
 cam_y = floor(cam_y);
 #endregion

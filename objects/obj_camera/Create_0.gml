@@ -1,15 +1,14 @@
 /// Create Event — obj_camera
 
-// Tamanho da câmera (16:9 HD)
+// Tamanho da câmera (16:9)
 cam_w = 1600;
 cam_h = 900;
 
-// IMPORTANTE: Define que a interface (UI) vai usar essa resolução também
+// Define GUI também
 display_set_gui_size(cam_w, cam_h);
 
 // cria camera
 cam = camera_create_view(0, 0, cam_w, cam_h, 0, noone, 0, 0, 0, 0);
-
 view_enabled = true;
 view_visible[0] = true;
 view_set_camera(0, cam);
@@ -39,4 +38,21 @@ rot_speed = 0.2;
 
 // lookahead
 look_offset_x = 0;
-cam_offset_y = -360; // Pode precisar ajustar isso, pois a tela ficou mais "baixa"
+cam_offset_y = -200;
+
+// ==========================================
+// BOSS TENSION SYSTEM
+// ==========================================
+boss_heartbeat_timer = 0;
+boss_heartbeat_pulse = 0;
+boss_tension_active = false;
+
+
+// ... suas variáveis existentes ...
+
+// ==========================================
+// BOSS HANDS ZOOM OUT
+// ==========================================
+boss_hands_active = false;
+boss_zoom_out = 0;
+boss_zoom_out_target = 0;

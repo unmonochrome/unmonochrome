@@ -11,7 +11,7 @@ target_y = y;
 
 // controle de subida
 hand_speed = 0.6;   // sobe rápido, pode ser sobrescrita pelo boss
-stay_time = 120;    // tempo que fica parada
+stay_time = 300;    // tempo que fica parada
 
 // variável nova pra colisão
 can_be_hit = false; // só pode bater quando chega na posição final

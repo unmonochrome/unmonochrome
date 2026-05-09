@@ -145,6 +145,29 @@ if (state == 3)
 #endregion
 
 // ==========================================
+#region MOVIMENTO DA BATALHA — RESPIRAÇÃO
+// ==========================================
+
+float_timer += float_spd;
+
+// Movimento horizontal suave (como se "respirasse")
+var breath_x = sin(float_timer * 0.8) * 120;
+var breath_y = cos(float_timer * 0.6) * 40;
+
+// Pulso de escala (cresce/diminui sutilmente)
+var breath_pulse = sin(float_timer * 1.2) * 0.03;
+image_xscale = eye_open_scale * (1 + breath_pulse);
+image_yscale = eye_open_scale * (1 - breath_pulse * 0.5);
+
+// Segue player + respiração
+x = lerp(x, p.x + breath_x, 0.08);
+y = 1184 + breath_y;
+
+x = clamp(x, 300, room_width - 300);
+
+#endregion
+
+// ==========================================
 #region MOVIMENTO DA BATALHA
 // ==========================================
 
@@ -208,71 +231,77 @@ switch (state)
 
     break;
 
-    case 1:
+case 1:
 
-        sprite_index = spr_eye_open_new;
+    sprite_index = spr_eye_open_new;
 
-        if (state_timer >= 6)
+    if (state_timer >= 6)
+    {
+        sprite_index = spr_eye_closed_new;
+
+        if (!hands_spawned && instance_exists(p))
         {
-            sprite_index = spr_eye_closed_new;
+            hands_spawned = true;
 
-            if (!hands_spawned && instance_exists(p))
+            var platform_left = 3648;
+            var platform_right = 8032;
+            
+            var target_index = irandom(hand_count - 1);
+            
+            var spacing = 400;
+            var total_width = spacing * (hand_count - 1);
+            
+            // Tenta centralizar no player
+            var center_x = p.x;
+            
+            // Mas se não couber, ajusta
+            var min_x = platform_left + 100;
+            var max_x = platform_right - 100;
+            
+            // Calcula onde começa pra ficar centralizado
+            var start_x = center_x - (total_width / 2);
+            
+            // Se passar dos limites, ajusta
+            if (start_x < min_x)
             {
-                hands_spawned = true;
-
-                var center_x = p.x;
-
-                var target_index =
-                    irandom(hand_count - 1);
-
-                var spacing = 400;
-
-                var start_offset =
-                    -spacing * (hand_count - 1) / 2;
-
-                for (var i = 0; i < hand_count; i++)
-                {
-                    var hand_x =
-                        center_x
-                        + start_offset
-                        + i * spacing;
-
-                    hand_x = clamp(
-                        hand_x,
-                        64,
-                        room_width - 64
-                    );
-
-                    var w =
-                        instance_create_layer(
-                            hand_x,
-                            1792,
-                            "inimigos",
-                            obj_boss_hand_warning_ground
-                        );
-
-                    w.spawn_x = hand_x;
-                    w.spawn_y = 1792 + 220;
-                    w.target_y = 1792;
-
-                    w.owner = id;
-
-                    w.is_target =
-                        (i == target_index);
-
-                    w.warning_time =
-                        max(8, 45 - hp_lost * 4);
-
-                    w.hand_speed =
-                        0.35 + hp_ratio * 0.45;
-                }
+                start_x = min_x;
+            }
+            
+            if (start_x + total_width > max_x)
+            {
+                start_x = max_x - total_width;
             }
 
-            state = 2;
-            state_timer = 0;
+            for (var i = 0; i < hand_count; i++)
+            {
+                var hand_x = start_x + (i * spacing);
+
+                var w = instance_create_layer(
+                    hand_x,
+                    1792,
+                    "inimigos",
+                    obj_boss_hand_warning_ground
+                );
+
+                w.spawn_x = hand_x;
+                w.spawn_y = 1792 + 220;
+                w.target_y = 1792;
+
+                w.owner = id;
+
+                w.is_target = (i == target_index);
+
+                w.warning_time = max(8, 45 - hp_lost * 4);
+
+                w.hand_speed = 0.35 + hp_ratio * 0.45;
+            }
         }
 
-    break;
+        state = 2;
+        state_timer = 0;
+    }
+
+break;
 
     case 2:
 
