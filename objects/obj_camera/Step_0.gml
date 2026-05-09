@@ -93,9 +93,9 @@ if (instance_exists(boss) && boss.state != 99 && boss.state != 3)
     x += breath_x + nervous_x + (boss_heartbeat_pulse * 4);
     y += breath_y + nervous_y + (boss_heartbeat_pulse * 3);
     
-    // 7. ROTAÇÃO SUTIL (DIMINUÍDA)
-    var unease_rotation = sin(breath_t * 0.4) * 0.08 * panic_level; // ← ERA 0.3
-    rot_target += unease_rotation;
+// 7. ROTAÇÃO SUTIL (desconforto visual)
+// var unease_rotation = sin(breath_t * 0.4) * 0.3 * panic_level;
+// rot_target += unease_rotation;
 }
 else
 {
