@@ -1,9 +1,5 @@
 /// Create Event — obj_hud
 
-#region Open Transition Spawn
-instance_create_layer(0, 0, "controladores", obj_transition_open);
-#endregion
-
 #region Preload de recursos
 // sprites do player
 sprite_prefetch(spr_player_idle);

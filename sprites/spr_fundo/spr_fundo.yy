@@ -25,8 +25,8 @@
   "nineSlice":null,
   "origin":0,
   "parent":{
-    "name":"sprite cenario",
-    "path":"folders/sprite cenario.yy",
+    "name":"sprite cenario1",
+    "path":"folders/sprite cenario1.yy",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",

@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"setup_camera",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"setup_camera",
+  "parent":{
+    "name":"obj",
+    "path":"folders/obj.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

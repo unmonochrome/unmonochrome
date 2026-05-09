@@ -396,6 +396,7 @@ x += hspd;
 #endregion
 
 // ==========================================
+// ==========================================
 #region V COLLISION
 // ==========================================
 if (!death_anim)
@@ -409,7 +410,11 @@ if (!death_anim)
             y += sign(vspd);
         }
 
-        if (vspd > 0) on_ground = true;
+        if (vspd > 0) 
+        {
+            on_ground = true;
+            ground_y = y; // ← ADICIONE ESTA LINHA (salva Y do chão)
+        }
         vspd = 0;
     }
 
@@ -420,6 +425,8 @@ else
     y += vspd;
 }
 #endregion
+
+
 
 // ==========================================
 #region FOOTSTEPS
@@ -450,7 +457,7 @@ else
         if (step_sound_id != -1)
             audio_stop_sound(step_sound_id);
 
-        step_sound_id = audio_play_sound(snd_step, 1, false);
+        step_sound_id = audio_play_sound(snd_step, 1, false,0.2);
         step_timer = step_interval;
     }
 }

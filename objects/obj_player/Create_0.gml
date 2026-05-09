@@ -74,3 +74,6 @@ transition_speed = 0.02;
 transition_target_room = noone;
 #endregion
 
+
+// no final do Create Event
+ground_y = y; // posição Y do último chão que pisou

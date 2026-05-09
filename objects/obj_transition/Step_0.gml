@@ -17,7 +17,7 @@ switch (state)
 
         if (wait_timer >= wait_time)
         {
-            room_goto(next_room);
+            room_goto_next()
         }
     break;
 }
