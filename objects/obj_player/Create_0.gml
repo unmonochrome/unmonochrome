@@ -42,7 +42,7 @@ knockback_x = 0;
 hitstun = 0;
 #endregion
 
-#region Freeze (boss cutscenes)
+#region Freeze
 freeze = false;
 #endregion
 
@@ -74,6 +74,21 @@ transition_speed = 0.02;
 transition_target_room = noone;
 #endregion
 
+#region Sombra
+ground_y = y;
+#endregion
 
-// no final do Create Event
-ground_y = y; // posição Y do último chão que pisou
+#region Modo Aquático
+in_water = false;
+water_vspd = 0;
+water_friction = 0.92;
+#endregion
+
+#region Dash Aquático
+dash_active = false;
+dash_timer = 0;
+dash_duration = 15;
+dash_speed = 10;
+dash_cooldown = 0;
+dash_cooldown_max = 40;
+#endregion

@@ -177,9 +177,24 @@ if (key_confirm)
 {
     if (instance_exists(target_button))
     {
-        with (target_button)
+        switch (menu_index)
         {
-            menu_activate();
+            case 0: // JOGAR
+                global.loading_target_room = rm_game;
+                room_goto(rm_loading);
+            break;
+            
+            case 1: // OPÇÕES
+                // nada ainda
+            break;
+            
+            case 2: // CRÉDITOS
+                // nada ainda
+            break;
+            
+            case 3: // SAIR
+                game_end();
+            break;
         }
     }
 }

@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"update_viewport",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"update_viewport",
+  "parent":{
+    "name":"unmonochrome",
+    "path":"unmonochrome.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

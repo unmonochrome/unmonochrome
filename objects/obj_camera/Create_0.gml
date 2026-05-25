@@ -38,7 +38,7 @@ rot_speed = 0.2;
 
 // lookahead
 look_offset_x = 0;
-cam_offset_y = -200;
+cam_offset_y = -350;
 
 // ==========================================
 // BOSS TENSION SYSTEM
@@ -47,12 +47,16 @@ boss_heartbeat_timer = 0;
 boss_heartbeat_pulse = 0;
 boss_tension_active = false;
 
-
-// ... suas variáveis existentes ...
-
 // ==========================================
 // BOSS HANDS ZOOM OUT
 // ==========================================
 boss_hands_active = false;
-boss_zoom_out = 0;
-boss_zoom_out_target = 0;
+boss_zoom_out = 1;
+boss_zoom_out_target = 1;
+
+// ==========================================
+// POST-PROCESS MONOCROMÁTICO GLOBAL
+// ==========================================
+// Desabilita o desenho automático da application_surface
+// pra a gente desenhar manualmente COM o shader aplicado
+application_surface_draw_enable(false);

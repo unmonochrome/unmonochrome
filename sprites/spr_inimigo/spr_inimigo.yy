@@ -23,7 +23,7 @@
   ],
   "name":"spr_inimigo",
   "nineSlice":null,
-  "origin":7,
+  "origin":4,
   "parent":{
     "name":"spr",
     "path":"folders/spr.yy",
@@ -76,7 +76,7 @@
     "visibleRange":null,
     "volume":1.0,
     "xorigin":64,
-    "yorigin":128,
+    "yorigin":64,
   },
   "swatchColours":null,
   "swfPrecision":0.5,

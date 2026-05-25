@@ -129,11 +129,18 @@ if (state == 3)
         death_red = min(1, death_red + 0.02);
     }
 
+    // ==========================================
+    // QUANDO TUDO TERMINA → TELA PRETA + IR PRA SEREIA
+    // ==========================================
     if (death_scale <= 0 && death_red >= 1)
     {
+        // Cria o fade preto que cobre a tela
         var fb = instance_create_depth(0, 0, -9999, obj_fade_black);
-
         fb.alpha = 1;
+
+        // Marca o fade pra disparar a transição quando estiver 100% preto
+        fb.go_to_loading = true;
+        fb.target_room   = rm_sereia;
 
         p.freeze = false;
 
@@ -191,25 +198,43 @@ x = clamp(x, 300, room_width - 300);
 
 #endregion
 
+/// Step Event — obj_boss_eye
+/// Substitui APENAS a região #region LIMPEZA DE MÃOS
+
 // ==========================================
-#region LIMPEZA DE MÃOS
+#region LIMPEZA DE MÃOS (ATUALIZADO)
 // ==========================================
 
-if (wrong_hand_hit || correct_hand_hit)
+// Se acertou a mão CERTA, limpa tudo e reseta
+if (correct_hand_hit)
 {
-    with (obj_boss_hand_ground) instance_destroy();
+    with (obj_boss_hand_ground)
+    {
+        if (!dying)
+        {
+            dying = true;
+            death_timer = 0;
+            can_be_hit = false;
+        }
+    }
+    
     with (obj_boss_hand_warning_ground) instance_destroy();
 
     state = 0;
     state_timer = 0;
 
     hands_spawned = false;
-
-    wrong_hand_hit = false;
     correct_hand_hit = false;
 }
 
+// Variável wrong_hand_hit não é mais usada (pode deixar como segurança)
+if (wrong_hand_hit)
+{
+    wrong_hand_hit = false;
+}
+
 #endregion
+
 
 // ==========================================
 #region ESTADOS DA BATALHA
