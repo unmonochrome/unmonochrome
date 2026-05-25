@@ -25,30 +25,96 @@ fact_alpha = 0;
 fact_fade_in = true;
 #endregion
 
-#region Loading Automático (TODOS os assets do jogo)
+#region Target Room
+if (variable_global_exists("loading_target_room"))
+{
+    target_room = global.loading_target_room;
+}
+else
+{
+    target_room = rm_menu;
+}
 
-// ==========================================
-// PEGA TUDO: SPRITES + SONS + FONTES
-// ==========================================
-var all_sprites = asset_get_ids(asset_sprite);
-var all_sounds  = asset_get_ids(asset_sound);
-var all_fonts   = asset_get_ids(asset_font);
+min_time = 120;
+timer = 0;
+
+dots = "";
+dot_timer = 0;
+#endregion
+
+#region LOADING INTELIGENTE (baseado na room alvo)
 
 resources_to_load = [];
 
-// Sprites
-for (var i = 0; i < array_length_1d(all_sprites); i++)
+// ==========================================
+// SPRITES POR ROOM (carrega só o necessário)
+// ==========================================
+
+if (target_room == rm_game)
 {
-    array_push(resources_to_load, [0, all_sprites[i]]);
+    // FASE 1 — player + inimigos + cenário
+    var sprites_fase1 = [
+        // Player
+        spr_player_idle, spr_player_run, spr_player_jump, spr_player_attack1,
+        // Inimigos
+        spr_olhinho, spr_olhinho_ataque, spr_olhinho_mask,
+    ];
+    
+    for (var i = 0; i < array_length(sprites_fase1); i++)
+    {
+        array_push(resources_to_load, [0, sprites_fase1[i]]);
+    }
+}
+else if (target_room == rm_boss_olho)
+{
+    // BOSS DO OLHO — player + boss + mãos
+    var sprites_boss_olho = [
+        // Player
+        spr_player_idle, spr_player_run, spr_player_jump, spr_player_attack1,
+        // Boss
+        spr_olho, spr_olhofechado, spr_pupilanovo,
+        // Mãos
+        spr_hand_ground, spr_hand_ground_target, spr_hand_warning,
+    ];
+    
+    for (var i = 0; i < array_length(sprites_boss_olho); i++)
+    {
+        array_push(resources_to_load, [0, sprites_boss_olho[i]]);
+    }
+}
+else if (target_room == rm_sereia)
+{
+    // BOSS DA SEREIA — player + boss + ataques
+    var sprites_sereia = [
+        // Player
+        spr_player_idle, spr_player_run, spr_player_jump, spr_player_attack1,
+        // Boss
+        spr_sereia_idle, spr_sereia_dano, spr_sereia_bravo,
+        // Ataques
+        spr_boss_bubble, spr_boss_fish,
+    ];
+    
+    for (var i = 0; i < array_length(sprites_sereia); i++)
+    {
+        array_push(resources_to_load, [0, sprites_sereia[i]]);
+    }
 }
 
-// Sons
+// ==========================================
+// SONS (sempre carrega todos — são pequenos)
+// ==========================================
+var all_sounds = asset_get_ids(asset_sound);
+
 for (var i = 0; i < array_length_1d(all_sounds); i++)
 {
     array_push(resources_to_load, [1, all_sounds[i]]);
 }
 
-// Fontes
+// ==========================================
+// FONTES
+// ==========================================
+var all_fonts = asset_get_ids(asset_font);
+
 for (var i = 0; i < array_length_1d(all_fonts); i++)
 {
     array_push(resources_to_load, [2, all_fonts[i]]);
@@ -63,35 +129,29 @@ progress_speed_base = 2;
 progress_variation = 0;
 variation_timer = 0;
 
-// Quantos recursos processar POR FRAME (pra não travar tudo)
-loads_per_step = 4;
+loads_per_step = 2; // 2 por frame pra não estourar VRAM de uma vez
+
 #endregion
 
-#region Target Room
-if (variable_global_exists("loading_target_room"))
-{
-    target_room = global.loading_target_room;
-}
-else
-{
-    target_room = rm_menu;
-}
-
-min_time = 60;
-timer = 0;
-
-dots = "";
-dot_timer = 0;
-#endregion
-
-#region Camera
+#region Camera + Letterbox
 cam_w = 1600;
 cam_h = 900;
 
-display_set_gui_size(cam_w, cam_h);
-
 cam = camera_create_view(0, 0, cam_w, cam_h, 0, noone, 0, 0, 0, 0);
+view_set_camera(0, cam);
+
 view_enabled = true;
 view_visible[0] = true;
-view_set_camera(0, cam);
+
+view_wview[0] = cam_w;
+view_hview[0] = cam_h;
+
+view_wport[0] = window_get_width();
+view_hport[0] = window_get_height();
+view_xport[0] = 0;
+view_yport[0] = 0;
+
+display_set_gui_size(cam_w, cam_h);
+
+application_surface_draw_enable(false);
 #endregion

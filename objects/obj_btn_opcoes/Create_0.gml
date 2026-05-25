@@ -1,14 +1,16 @@
+/// Create Event — obj_btn_opcoes
+
 #region Setup
 
 image_blend = c_white;
 
 menu_activate = function()
 {
-   if (!instance_exists(obj_transition))
+    if (!instance_exists(obj_transition))
     {
         var trans = instance_create_layer(0, 0, "Instances", obj_transition);
         trans.next_room = rm_opcoes;
-    } // abrir opções
+    }
 };
 
 #endregion

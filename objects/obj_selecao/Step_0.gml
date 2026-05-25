@@ -171,6 +171,10 @@ y = lerp(y, target_y, follow_spd);
 
 #endregion
 
+/// Step Event — obj_selecao
+/// SUBSTITUI APENAS A REGIÃO #region CONFIRMAR
+/// Mantenha o resto do código igual
+
 #region CONFIRMAR
 
 if (key_confirm)
@@ -181,15 +185,28 @@ if (key_confirm)
         {
             case 0: // JOGAR
                 global.loading_target_room = rm_game;
-                room_goto(rm_loading);
+                
+                if (!instance_exists(obj_transition))
+                {
+                    var trans = instance_create_layer(0, 0, "Instances", obj_transition);
+                    trans.next_room = rm_loading;
+                }
             break;
             
             case 1: // OPÇÕES
-                // nada ainda
+                if (!instance_exists(obj_transition))
+                {
+                    var trans = instance_create_layer(0, 0, "Instances", obj_transition);
+                    trans.next_room = rm_opcoes;
+                }
             break;
             
             case 2: // CRÉDITOS
-                // nada ainda
+                if (!instance_exists(obj_transition))
+                {
+                    var trans = instance_create_layer(0, 0, "Instances", obj_transition);
+                    trans.next_room = rm_creditos;
+                }
             break;
             
             case 3: // SAIR

@@ -1,54 +1,67 @@
 /// Post-Draw Event — obj_camera
-/// Esse evento roda DEPOIS de toda a cena ser desenhada,
-/// mas ANTES da GUI. Perfeito pra aplicar um shader na tela inteira.
+/// Desenha a tela inteira com letterbox 16:9 + shader monocromático
 
-// ==========================================
-// CALCULAR POSIÇÃO DA APPLICATION SURFACE
-// (respeitando aspect ratio / letterbox)
-// ==========================================
 var ww = window_get_width();
 var wh = window_get_height();
 
-var base_aspect = cam_w / cam_h;
+// Calcula área 16:9 centralizada (letterbox automático)
+var target_aspect = cam_w / cam_h;
 var screen_aspect = ww / wh;
 
-var draw_w, draw_h, draw_x, draw_y;
+var dw, dh, dx, dy;
 
-if (screen_aspect > base_aspect)
+if (screen_aspect > target_aspect)
 {
-    // tela mais larga que o jogo → letterbox lateral
-    draw_h = wh;
-    draw_w = draw_h * base_aspect;
-    draw_x = (ww - draw_w) / 2;
-    draw_y = 0;
+    // Tela mais larga (ultrawide) → letterbox lateral
+    dh = wh;
+    dw = dh * target_aspect;
+    dx = (ww - dw) * 0.5;
+    dy = 0;
 }
 else
 {
-    // tela mais alta que o jogo → letterbox em cima/baixo
-    draw_w = ww;
-    draw_h = draw_w / base_aspect;
-    draw_x = 0;
-    draw_y = (wh - draw_h) / 2;
+    // Tela mais alta (vertical) → letterbox em cima/baixo
+    dw = ww;
+    dh = dw / target_aspect;
+    dx = 0;
+    dy = (wh - dh) * 0.5;
 }
 
 // ==========================================
-// APLICA SHADER SE FOR ROOM MONOCROMÁTICA
+// BARRAS PRETAS DE LETTERBOX
+// ==========================================
+draw_set_color(c_black);
+
+if (dx > 0)
+{
+    draw_rectangle(0, 0, dx, wh, false);
+    draw_rectangle(dx + dw, 0, ww, wh, false);
+}
+
+if (dy > 0)
+{
+    draw_rectangle(0, 0, ww, dy, false);
+    draw_rectangle(0, dy + dh, ww, wh, false);
+}
+
+draw_set_color(c_white);
+
+// ==========================================
+// DESENHA O JOGO (com shader se for mono)
 // ==========================================
 if (room == rm_game || room == rm_boss_olho)
 {
     shader_set(shd_saturation);
-    
     shader_set_uniform_f(
         shader_get_uniform(shd_saturation, "saturation"),
         0.0
     );
     
-    draw_surface_stretched(application_surface, draw_x, draw_y, draw_w, draw_h);
+    draw_surface_stretched(application_surface, dx, dy, dw, dh);
     
     shader_reset();
 }
 else
 {
-    // Outras rooms: desenha normal (sem shader)
-    draw_surface_stretched(application_surface, draw_x, draw_y, draw_w, draw_h);
+    draw_surface_stretched(application_surface, dx, dy, dw, dh);
 }

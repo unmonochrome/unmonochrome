@@ -1,34 +1,44 @@
-/// Create Event — obj_cameramenu (CORRIGIDO)
+/// Create Event — obj_cameramenu
 
-// Tamanho da câmera
 cam_w = 1600;
 cam_h = 900;
 
-// IMPORTANTE: aguarda 1 frame antes de criar camera em HTML5
-if (os_browser != browser_not_a_browser)
-{
-    alarm[0] = 1; // cria camera no próximo frame
-}
-else
-{
-    // exe: cria imediatamente
-    setup_camera();
-}
+// Cria a câmera
+cam = camera_create_view(0, 0, cam_w, cam_h, 0, noone, 0, 0, 0, 0);
+view_set_camera(0, cam);
+
+view_enabled = true;
+view_visible[0] = true;
+
+view_wview[0] = cam_w;
+view_hview[0] = cam_h;
+
+view_wport[0] = window_get_width();
+view_hport[0] = window_get_height();
+view_xport[0] = 0;
+view_yport[0] = 0;
+
+display_set_gui_size(cam_w, cam_h);
 
 // base da câmera
 base_x = 0;
 base_y = 0;
 
-// shake atual
 shake_x = 0;
 shake_y = 0;
 shake_r = 0;
 
-// força
 shake_power = 1.2;
 shake_rot_power = 0.08;
 
 wave = 0;
 
-// Checa se a música do menu NÃO está tocando, aí toca
+// Música do menu
 if (!audio_is_playing(snd_menu)) audio_play_sound(snd_menu, 1, true);
+
+// Janela
+last_window_w = window_get_width();
+last_window_h = window_get_height();
+
+// POST-PROCESS pra desenhar com letterbox 16:9
+application_surface_draw_enable(false);

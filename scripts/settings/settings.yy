@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"settings",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"settings",
+  "parent":{
+    "name":"unmonochrome",
+    "path":"unmonochrome.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}
