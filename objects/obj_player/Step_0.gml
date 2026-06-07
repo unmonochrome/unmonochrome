@@ -85,6 +85,11 @@ var move = key_right - key_left;
 #endregion
 
 // ==========================================
+/// Step Event — obj_player
+/// SUBSTITUI APENAS A REGIÃO #region DEATH STATE
+/// (mantém o resto do Step igual)
+
+// ==========================================
 #region DEATH STATE
 // ==========================================
 if (death_anim)
@@ -110,6 +115,12 @@ if (death_anim)
         hspd = 0;
         vspd = 0;
         death_fade = 0;
+        
+        // Cria a tela de morte (só se ainda não existir)
+        if (!instance_exists(obj_death_screen))
+        {
+            instance_create_depth(0, 0, -9998, obj_death_screen);
+        }
     }
 
     exit;
@@ -117,39 +128,14 @@ if (death_anim)
 
 if (dead)
 {
+    // Player fica parado, sem input
+    // A tela de morte (obj_death_screen) cuida do restart da room
     hspd = 0;
     vspd = 0;
-
-    var respawn_input = keyboard_check_pressed(ord("Z"));
-    
-    if (gp_connected)
-    {
-        respawn_input = respawn_input || gamepad_button_check_pressed(0, gp_face1);
-    }
-
-    if (respawn_input)
-    {
-        x = global.spawn_x;
-        y = global.spawn_y;
-
-        hp = hp_max;
-        invincible = 30;
-        hurt_timer = 0;
-        hitstun = 0;
-        knockback_x = 0;
-
-        dead = false;
-        death_anim = false;
-        death_timer = 0;
-        death_fade = 1;
-        death_rot = 0;
-        image_alpha = 1;
-        image_angle = 0;
-    }
-
     exit;
 }
 #endregion
+
 
 // ==========================================
 #region FACING

@@ -80,6 +80,7 @@
     {"id":{"name":"obj_checkpoint","path":"objects/obj_checkpoint/obj_checkpoint.yy",},},
     {"id":{"name":"obj_colorgrade","path":"objects/obj_colorgrade/obj_colorgrade.yy",},},
     {"id":{"name":"obj_death_bubble","path":"objects/obj_death_bubble/obj_death_bubble.yy",},},
+    {"id":{"name":"obj_death_screen","path":"objects/obj_death_screen/obj_death_screen.yy",},},
     {"id":{"name":"obj_door","path":"objects/obj_door/obj_door.yy",},},
     {"id":{"name":"obj_enemy","path":"objects/obj_enemy/obj_enemy.yy",},},
     {"id":{"name":"obj_fade_black","path":"objects/obj_fade_black/obj_fade_black.yy",},},

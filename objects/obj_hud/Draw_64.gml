@@ -1,5 +1,15 @@
 /// Draw GUI Event — obj_hud
 
+/// Draw GUI Event — obj_hud (adiciona NO TOPO)
+
+// Não desenha HUD se a tela de morte estiver ativa
+if (instance_exists(obj_death_screen)) exit;
+
+if (instance_exists(obj_fade_black)) exit;
+
+// ... resto do código normal aqui
+
+
 var player = instance_find(obj_player, 0);
 if (!instance_exists(player)) exit;
 
@@ -36,41 +46,6 @@ for (var i = 0; i < hearts_total; i++)
 }
 #endregion
 
-// ==========================================
-#region MORTE DO PLAYER
-// ==========================================
-var w = display_get_gui_width();
-var h = display_get_gui_height();
-
-if (player.death_anim)
-{
-    var death_alpha = (1 - player.death_fade) * 0.75;
-
-    draw_set_alpha(death_alpha);
-    draw_set_color(c_black);
-    draw_rectangle(0, 0, w, h, false);
-    draw_set_alpha(1);
-    draw_set_color(c_white);
-}
-
-if (player.dead)
-{
-    draw_set_alpha(0.75);
-    draw_set_color(c_black);
-    draw_rectangle(0, 0, w, h, false);
-    draw_set_alpha(1);
-
-    draw_set_color(c_white);
-    draw_set_halign(fa_center);
-    draw_set_valign(fa_middle);
-
-    draw_text(w / 2, h / 2 - 10, "voce morreu");
-    draw_text(w / 2, h / 2 + 24, "pressione Z para renascer");
-
-    draw_set_halign(fa_left);
-    draw_set_valign(fa_top);
-}
-#endregion
 
 // ==========================================
 #region TRANSIÇÃO DE ROOM
