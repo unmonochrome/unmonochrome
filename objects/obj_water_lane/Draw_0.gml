@@ -1,55 +1,78 @@
 /// Draw Event — obj_water_lane
 
-var lane_color;
-var wave_speed;
-var particle_count;
+var center_x = x + lane_width / 2;
+var center_y = room_height / 2;
 
-if (is_dangerous)
+// ==========================================
+// ESTADO 0 = WARNING
+// ==========================================
+if (state == 0)
 {
-    // PERIGOSA: Vermelho escuro, rápido, caótico
-    lane_color = make_colour_rgb(150, 30, 40);
-    wave_speed = 8;
-    particle_count = 5;
-}
-else
-{
-    // SEGURA: Azul claro, lento, calmo
-    lane_color = make_colour_rgb(60, 120, 180);
-    wave_speed = 2;
-    particle_count = 2;
-}
-
-// Fundo da faixa
-draw_set_alpha(0.4);
-draw_set_color(lane_color);
-draw_rectangle(x, 0, x + lane_width, room_height, false);
-draw_set_alpha(1);
-
-// Ondas animadas
-for (var i = 0; i < 3; i++)
-{
-    var wave_y = (current_time * 0.01 * wave_speed + i * 100) mod room_height;
+    var pulse_intensity = 0.4 + abs(sin(warning_pulse)) * 0.6;
+    var warning_color = make_colour_rgb(255, 60 * pulse_intensity, 60 * pulse_intensity);
     
-    draw_set_alpha(0.2);
-    draw_line_width_color(
-        x, wave_y,
-        x + lane_width, wave_y,
-        3,
-        lane_color, lane_color
+    var t = warning_timer / warning_time;
+    var warning_alpha_mult = lerp(0.3, 0.9, t);
+    
+    draw_sprite_ext(
+        spr_jato, jato_anim_frame,
+        center_x, center_y,
+        1, 1,
+        0,
+        warning_color,
+        warning_alpha_mult
     );
+    
+    // "!" subindo
+    var icon_pulse = 0.5 + abs(sin(warning_pulse * 1.5)) * 0.5;
+    draw_set_alpha(icon_pulse);
+    draw_set_color(c_white);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    
+    for (var iy = room_height; iy > 0; iy -= 200)
+    {
+        draw_text_transformed(
+            center_x,
+            iy - ((warning_timer * 3) mod 200),
+            "!", 3, 3, 0
+        );
+    }
+    
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+    
+    exit;
 }
 
-draw_set_alpha(1);
-draw_set_color(c_white);
+// ==========================================
+// ESTADO 1 = JATO ATIVO
+// ==========================================
 
-// Partículas
-if (particle_timer mod 10 == 0)
+// SEMPRE desenha as 2 cópias (independentes)
+draw_sprite_ext(
+    spr_jato_ataque, ataque_anim_frame,
+    center_x, fish_y_1,
+    1, 1, 0,
+    c_white, 1
+);
+
+draw_sprite_ext(
+    spr_jato_ataque, ataque_anim_frame,
+    center_x, fish_y_2,
+    1, 1, 0,
+    c_white, 1
+);
+
+// BORDAS DO JATO (com fade in/out)
+if (jato_alpha > 0.02)
 {
-    for (var i = 0; i < particle_count; i++)
-    {
-        var px = x + random(lane_width);
-        var py = random(room_height);
-        
-        // instance_create_layer(px, py, "effects", obj_water_particle);
-    }
+    draw_sprite_ext(
+        spr_jato, jato_anim_frame,
+        center_x, center_y,
+        1, 1, 0,
+        c_white, jato_alpha
+    );
 }

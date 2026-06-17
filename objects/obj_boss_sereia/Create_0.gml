@@ -1,7 +1,7 @@
 /// Create Event — obj_boss_sereia
 
 #region HP e Estado
-hp = 6;
+hp = 10;
 max_hp = 10;
 
 // Rastreador de HP pra detectar quando levou dano
@@ -89,3 +89,11 @@ if (instance_exists(p))
     p.in_water = true;
 }
 #endregion
+
+/// ADICIONA ESSAS LINHAS NO CREATE do obj_boss_sereia
+
+// Garante random verdadeiro
+randomize();
+
+// Direção dos peixes (alterna a cada ataque)
+fish_direction = 1;  // 1 = esquerda→direita, -1 = direita→esquerda

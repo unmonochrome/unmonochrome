@@ -1,61 +1,36 @@
 /// Draw GUI Event — obj_hud
 
-/// Draw GUI Event — obj_hud (adiciona NO TOPO)
-
-// Não desenha HUD se a tela de morte estiver ativa
 if (instance_exists(obj_death_screen)) exit;
 
-if (instance_exists(obj_fade_black)) exit;
+var p = instance_find(obj_player, 0);
+if (!instance_exists(p)) exit;
 
-// ... resto do código normal aqui
+var hp_atual = p.hp;
 
-
-var player = instance_find(obj_player, 0);
-if (!instance_exists(player)) exit;
-
-// ==========================================
-#region CORAÇÕES
-// ==========================================
-var start_x = 32;
-var start_y = 32;
-var spacing = 120;
-var scale = 0.12;
-
-var hearts_total = player.hp_max div 2;
-
-for (var i = 0; i < hearts_total; i++)
+for (var i = 0; i < heart_count; i++)
 {
-    var draw_x = start_x + (i * spacing);
-    var hp_for_this_heart = player.hp - (i * 2);
-
-    if (hp_for_this_heart >= 2)
-    {
-        // cheio
-        draw_sprite_ext(spr_heart_full, 0, draw_x, start_y, scale, scale, 0, c_white, 1);
-    }
-    else if (hp_for_this_heart == 1)
-    {
-        // metade
-        draw_sprite_ext(spr_heart_empty, 0, draw_x, start_y, scale, scale, 0, c_white, 1);
-    }
+    var hp_min = i * 2;
+    var hp_metade = hp_min + 1;
+    var hp_cheio = hp_min + 2;
+    
+    var spr;
+    
+    if (hp_atual >= hp_cheio)
+        spr = vida;
+    else if (hp_atual >= hp_metade)
+        spr = vidametade;
     else
-    {
-        // vazio — desenha transparente pra mostrar que existe
-        draw_sprite_ext(spr_heart_empty, 0, draw_x, start_y, scale, scale, 0, c_white, 0.3);
-    }
+        spr = vida0;
+    
+    var draw_x = heart_x + (i * heart_spacing);
+    var draw_y = heart_y;
+    
+    draw_sprite_ext(
+        spr, 0,
+        draw_x, draw_y,
+        heart_scale, heart_scale,
+        0,
+        c_white,
+        1
+    );
 }
-#endregion
-
-
-// ==========================================
-#region TRANSIÇÃO DE ROOM
-// ==========================================
-if (player.transitioning && player.transition_alpha > 0)
-{
-    draw_set_alpha(player.transition_alpha);
-    draw_set_color(c_black);
-    draw_rectangle(0, 0, w, h, false);
-    draw_set_alpha(1);
-    draw_set_color(c_white);
-}
-#endregion

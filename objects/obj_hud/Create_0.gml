@@ -31,3 +31,23 @@ audio_stop_all();
 audio_play_sound(snd_death, 0, false);
 audio_stop_all();
 #endregion
+
+/// Create Event — obj_hud
+
+depth = -9000;
+
+// ==========================================
+// CONFIGURAÇÕES DOS CORAÇÕES
+// ==========================================
+heart_count = 5;            // 5 corações = 10 HP (2 HP por coração)
+
+// Tamanho final desejado de cada coração na tela
+heart_display_size = 100; 
+
+// Calcula escala automaticamente baseado no sprite original (1500x1500)
+heart_scale = heart_display_size / 1500;
+
+// Posição
+heart_spacing = 110;        // proporcional
+heart_x = 50;               // afasta um pouquinho da borda
+heart_y = 40;

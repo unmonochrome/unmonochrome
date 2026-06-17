@@ -80,25 +80,6 @@ draw_ellipse_colour(
     c_center_1, c_edge, false
 );
 
-// 2. CAMADAS FANTASMAS (Efeito de Bloom no formato do olho)
-// Em vez de desenhar 200 vezes, desenhamos 3 vezes bem maiores e quase transparentes
-for (var j = 1; j <= 3; j++)
-{
-    // Cada camada fica progressivamente maior e mais transparente
-    var ghost_scale = final_scale * (1.15 + (j * 0.2) + (pulse * 0.05));
-    var ghost_alpha = (0.08 - (j * 0.02)) * final_alpha;
-    
-    draw_set_alpha(ghost_alpha);
-    draw_sprite_ext(
-        sprite_index, image_index,
-        x, y,
-        ghost_scale * -facing, 
-        ghost_scale,
-        0, 
-        make_colour_rgb(255, 100, 150), 
-        1
-    );
-}
 
 gpu_set_blendmode(bm_normal);
 draw_set_alpha(1);

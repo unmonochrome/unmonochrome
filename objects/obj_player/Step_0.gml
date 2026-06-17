@@ -9,6 +9,7 @@ if (hitstun > 0) hitstun--;
 if (atk_cd > 0) atk_cd--;
 if (step_timer > 0) step_timer--;
 if (dash_cooldown > 0) dash_cooldown--;
+if (swim_jump_timer > 0) swim_jump_timer--;
 #endregion
 
 // ==========================================
@@ -29,12 +30,7 @@ if (freeze)
 if (transitioning)
 {
     transition_alpha += transition_speed;
-
-    if (transition_alpha >= 1)
-    {
-        room_goto(transition_target_room);
-    }
-
+    if (transition_alpha >= 1) room_goto(transition_target_room);
     exit;
 }
 #endregion
@@ -85,11 +81,6 @@ var move = key_right - key_left;
 #endregion
 
 // ==========================================
-/// Step Event — obj_player
-/// SUBSTITUI APENAS A REGIÃO #region DEATH STATE
-/// (mantém o resto do Step igual)
-
-// ==========================================
 #region DEATH STATE
 // ==========================================
 if (death_anim)
@@ -116,11 +107,8 @@ if (death_anim)
         vspd = 0;
         death_fade = 0;
         
-        // Cria a tela de morte (só se ainda não existir)
         if (!instance_exists(obj_death_screen))
-        {
             instance_create_depth(0, 0, -9998, obj_death_screen);
-        }
     }
 
     exit;
@@ -128,40 +116,26 @@ if (death_anim)
 
 if (dead)
 {
-    // Player fica parado, sem input
-    // A tela de morte (obj_death_screen) cuida do restart da room
     hspd = 0;
     vspd = 0;
     exit;
 }
 #endregion
 
-
 // ==========================================
 #region FACING
 // ==========================================
 if (move != 0 && hitstun <= 0 && !attacking && !dash_active)
-{
     facing = sign(move);
-}
 #endregion
 
 // ==========================================
-// ==========================================
-// SISTEMA DE MOVIMENTO
-// ==========================================
-// ==========================================
-
-// ==========================================
-#region MODO AQUÁTICO (Estilo Mario + MERGULHO RÁPIDO)
+#region MODO AQUÁTICO
 // ==========================================
 if (in_water)
 {
     grav = 0;
     
-    // ==========================================
-    // MOVIMENTO HORIZONTAL (com inércia)
-    // ==========================================
     if (hitstun <= 0 && !dash_active)
     {
         if (move != 0)
@@ -172,26 +146,21 @@ if (in_water)
         else
         {
             hspd *= 0.95;
-            
-            if (abs(hspd) < 0.1)
-            {
-                hspd = 0;
-            }
+            if (abs(hspd) < 0.1) hspd = 0;
         }
     }
     
-    // ==========================================
-    // NADO (Estilo Mario - Impulso pra cima + Mergulho)
-    // ==========================================
     if (hitstun <= 0 && !dash_active)
     {
-        // IMPULSO PRA CIMA (apertar Z/A)
         if (key_jump)
         {
             water_vspd = -12;
+            swim_jump_timer = swim_jump_duration;
+            
+            if (sprite_index == spr_player_jump_swim)
+                image_index = 0;
         }
         
-        // MERGULHO RÁPIDO (segurar ↓)
         if (key_down)
         {
             water_vspd += 0.8;
@@ -199,27 +168,21 @@ if (in_water)
         }
         else
         {
-            // Gravidade aquática normal
             water_vspd += 0.18;
             water_vspd = clamp(water_vspd, -35, 8);
         }
         
-        // Fricção vertical
         water_vspd *= 0.94;
-        
         vspd = water_vspd;
     }
     
-    // ==========================================
-    // DASH AQUÁTICO (C ou X no controle)
-    // ==========================================
     if (!dash_active && dash_cooldown <= 0 && key_attack && hitstun <= 0)
     {
         dash_active = true;
         dash_timer = dash_duration;
         dash_cooldown = dash_cooldown_max;
 
-        var hb = instance_create_layer(x + (80 * facing), y, "effects", obj_player_hitbox);
+        var hb = instance_create_layer(x + (100 * facing), y, "effects", obj_player_hitbox);
         hb.direction_x = facing;
 
         hspd = dash_speed * facing;
@@ -244,19 +207,36 @@ if (in_water)
         }
     }
     
-    // ==========================================
-    // MOVIMENTO FINAL (SEM colisão com obj_solid)
-    // ==========================================
     x += hspd;
     y += vspd;
     
-    // PAREDES INVISÍVEIS FORA DA ROOM
     var margin = 100;
     x = clamp(x, -margin, room_width  + margin);
     y = clamp(y, -margin, room_height + margin);
     
     on_ground = false;
     state = "water";
+    
+    // ==========================================
+    // CÁLCULO DA INCLINAÇÃO AQUÁTICA (SEM * facing)
+    // ==========================================
+    if (dash_active || hitstun > 0 || swim_jump_timer > 0)
+    {
+        swim_tilt_target = 0;
+    }
+    else
+    {
+        var tilt_factor = hspd / 3;
+        tilt_factor = clamp(tilt_factor, -1, 1);
+        
+        var vert_factor = vspd / 10;
+        vert_factor = clamp(vert_factor, -0.5, 0.5);
+        
+        // SEM multiplicar por facing — o GM cuida da rotação
+        swim_tilt_target = -tilt_factor * swim_tilt_max + vert_factor * swim_tilt_max * 0.6;
+    }
+    
+    swim_tilt_angle = lerp(swim_tilt_angle, swim_tilt_target, swim_tilt_speed);
 }
 #endregion
 
@@ -267,15 +247,14 @@ else
 {
     state = "ground";
     
+    swim_tilt_angle = lerp(swim_tilt_angle, 0, 0.2);
+    swim_jump_timer = 0;
+    
     #region RUN TIMER
     if (move != 0 && on_ground && hitstun <= 0)
-    {
         run_timer++;
-    }
     else if (on_ground)
-    {
         run_timer = 0;
-    }
     #endregion
     
     #region SPEED CALC
@@ -285,10 +264,7 @@ else
     var current_max_speed = lerp(base_speed, base_speed * max_boost, t);
 
     var run_multiplier = 1.0;
-    if (key_run && hitstun <= 0)
-    {
-        run_multiplier = 1.6;
-    }
+    if (key_run && hitstun <= 0) run_multiplier = 1.6;
 
     var final_max_speed = current_max_speed * run_multiplier;
     #endregion
@@ -309,14 +285,8 @@ else
     {
         if (move != 0)
         {
-            if (on_ground)
-            {
-                hspd += move * accel_ground;
-            }
-            else
-            {
-                hspd += move * accel_air;
-            }
+            if (on_ground) hspd += move * accel_ground;
+            else hspd += move * accel_air;
         }
         else
         {
@@ -336,16 +306,12 @@ else
     
     #region TURN CONTROL
     if (hitstun <= 0 && move != 0 && abs(hspd) > 0.1 && sign(move) != sign(hspd))
-    {
         hspd *= 0.55;
-    }
     #endregion
     
     #region SPEED LIMIT
     if (hitstun <= 0)
-    {
         hspd = clamp(hspd, -final_max_speed, final_max_speed);
-    }
     #endregion
     
     #region GRAVITY
@@ -386,15 +352,10 @@ else
     {
         attack_timer--;
 
-        if (on_ground)
-            hspd = lerp(hspd, 0, 0.25);
-        else
-            hspd *= 0.92;
+        if (on_ground) hspd = lerp(hspd, 0, 0.25);
+        else hspd *= 0.92;
 
-        if (attack_timer <= 0)
-        {
-            attacking = false;
-        }
+        if (attack_timer <= 0) attacking = false;
     }
     #endregion
     
@@ -402,9 +363,7 @@ else
     if (place_meeting(x + hspd, y, obj_solid))
     {
         while (!place_meeting(x + sign(hspd), y, obj_solid))
-        {
             x += sign(hspd);
-        }
 
         hspd = 0;
         knockback_x = 0;
@@ -419,9 +378,7 @@ else
     if (place_meeting(x, y + vspd, obj_solid))
     {
         while (!place_meeting(x, y + sign(vspd), obj_solid))
-        {
             y += sign(vspd);
-        }
 
         if (vspd > 0)
         {
@@ -437,12 +394,10 @@ else
 #endregion
 
 // ==========================================
-// ==========================================
 #region DAMAGE
 // ==========================================
 var enemy = instance_place(x, y, obj_enemy);
 
-// Pega mão SÓ se NÃO estiver morrendo (animação acabando)
 var boss_hand = noone;
 with (obj_boss_hand_ground)
 {
@@ -469,13 +424,9 @@ if (attacker != noone && invincible <= 0)
     knockback_x = 6 * -sign(attacker.x - x);
     if (knockback_x == 0) knockback_x = -6 * facing;
 
-    if (!in_water)
-    {
-        vspd = -4;
-    }
+    if (!in_water) vspd = -4;
 }
 #endregion
-
 
 // ==========================================
 #region DEATH CHECK
@@ -506,18 +457,28 @@ var base_scale = 0.3;
 image_xscale = base_scale * facing;
 image_yscale = base_scale;
 
-if (dead)
-{
-    // nada
-}
-else if (death_anim)
-{
-    // mantém sprite atual
-}
+if (in_water && !dash_active)
+    image_angle = swim_tilt_angle;
+else
+    image_angle = 0;
+
+if (dead) {}
+else if (death_anim) {}
 else if (dash_active)
 {
-    sprite_index = spr_player_attack1;
-    image_speed = 1;
+    if (sprite_index != spr_player_swim_attack)
+    {
+        sprite_index = spr_player_swim_attack;
+        image_index = 0;
+    }
+    
+    image_speed = 0;
+    
+    var progress = 1 - (dash_timer / dash_duration);
+    var total_frames = sprite_get_number(spr_player_swim_attack);
+    var frame_to_show = floor(progress * total_frames);
+    
+    image_index = clamp(frame_to_show, 0, total_frames - 1);
 }
 else if (attacking)
 {
@@ -526,12 +487,39 @@ else if (attacking)
         sprite_index = spr_player_attack1;
         image_index = 0;
     }
-
     image_speed = 1;
 }
 else
 {
-    if (!on_ground && !in_water)
+    if (in_water)
+    {
+        if (swim_jump_timer > 0)
+        {
+            if (sprite_index != spr_player_jump_swim)
+            {
+                sprite_index = spr_player_jump_swim;
+                image_index = 0;
+            }
+            
+            image_speed = 0;
+            
+            var progress = 1 - (swim_jump_timer / swim_jump_duration);
+            var total_frames = sprite_get_number(spr_player_jump_swim);
+            var frame_to_show = floor(progress * total_frames);
+            
+            image_index = clamp(frame_to_show, 0, total_frames - 1);
+        }
+        else
+        {
+            if (sprite_index != spr_player_swim)
+            {
+                sprite_index = spr_player_swim;
+                image_index = 0;
+            }
+            image_speed = 0.8;
+        }
+    }
+    else if (!on_ground)
     {
         if (sprite_index != spr_player_jump)
         {
@@ -542,9 +530,7 @@ else
         if (vspd < 0)
         {
             image_speed = 0.25;
-
-            if (image_index > 2)
-                image_index = 2;
+            if (image_index > 2) image_index = 2;
         }
         else
         {
@@ -572,7 +558,6 @@ else
             sprite_index = spr_player_idle;
             image_index = 0;
         }
-
         image_speed = 1;
     }
 }

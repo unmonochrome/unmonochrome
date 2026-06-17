@@ -11,13 +11,13 @@ if (!instance_exists(boss_ref))
     if (instance_exists(obj_boss_eye))
     {
         boss_ref = instance_find(obj_boss_eye, 0);
-        boss_name = "OLHO ATRAENTE";
+        boss_name = "Gasppar";
     }
     // Tenta achar boss sereia
     else if (instance_exists(obj_boss_sereia))
     {
         boss_ref = instance_find(obj_boss_sereia, 0);
-        boss_name = "ABISMO SUBMARINO";
+        boss_name = "Japulia";
     }
 }
 

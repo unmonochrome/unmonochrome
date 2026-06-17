@@ -17,5 +17,8 @@ if (!is_correct)
             shake_time = 6;
             shake_strength = 4;
         }
+        
+        // Destrói TODOS os peixes — ataque acaba
+        with (obj_boss_fish) instance_destroy();
     }
 }
