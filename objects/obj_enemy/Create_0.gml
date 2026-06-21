@@ -3,7 +3,7 @@
 #region Movimento
 hspd = 0;
 vspd = 0;
-walkspd = 2;
+walkspd = 4;
 grav = 0;
 #endregion
 
@@ -24,10 +24,10 @@ hurt_timer = 0;
 invincible = 0;
 #endregion
 
-#region IA
-aggro = false;
-aggro_range = 300;
-lose_aggro_range = 500;
+#region IA — FUGA
+flee_range = 700;       // distância em que começa a fugir (maior)
+panic_range = 350;      // entra em pânico mais cedo
+max_flee_speed = 12;    // velocidade máxima MUITO acima do player
 #endregion
 
 #region Ativação
@@ -50,32 +50,25 @@ float_seed = random(1000);
 base_y = y;
 #endregion
 
-#region Ataque
-attacking = false;
-attack_timer = 0;
-attack_duration = 20;
-attack_cooldown = 0;
-attack_cooldown_max = 60;
+#region Comportamento Natural
+wobble_seed = random(1000);
+wobble_strength = 0.6;
+
+behavior_state = 0;
+behavior_timer = 0;
+behavior_change_min = 60;
+behavior_change_max = 180;
+next_behavior_change = irandom_range(behavior_change_min, behavior_change_max);
+
+peek_chance = 3;
 #endregion
 
 #region Escala dos Sprites
-// Tamanho real que o olho deve ter (128x128 original)
 target_size = 128;
-
-// ==========================================
-// IDLE: 469x670 → escala pra 128px
-// ==========================================
 spr_idle_w = sprite_get_width(spr_olhinho);
 spr_idle_h = sprite_get_height(spr_olhinho);
 
 scale_idle = target_size / max(spr_idle_w, spr_idle_h);
-
-// ==========================================
-// ATAQUE: Mantém a MESMA escala do idle
-// (porque o olho em si tem o mesmo tamanho, só tem espaço vazio)
-// ==========================================
-scale_attack = scale_idle; // ← MESMA ESCALA
-
 current_scale = scale_idle;
 #endregion
 
@@ -86,9 +79,7 @@ image_speed = 0;
 sprite_index = spr_olhinho;
 #endregion
 
-// ... todo seu código existente ...
-
 #region Aura/Glow
-aura_hue = random(360); // variação de cor única por inimigo
+aura_hue = random(360);
 aura_pulse_seed = random(1000);
 #endregion

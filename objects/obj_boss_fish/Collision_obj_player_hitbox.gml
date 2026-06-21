@@ -22,32 +22,12 @@ if (is_correct)
 
     instance_destroy(hb);
     
-    // Destrói TODOS os peixes (ataque terminou com sucesso)
+    // Destrói TODOS os peixes
     with (obj_boss_fish) instance_destroy();
 }
 else
 {
-    // ACERTOU PEIXE ERRADO — player toma dano e todos somem
-    var pl = instance_find(obj_player, 0);
-    
-    if (instance_exists(pl) && pl.invincible <= 0)
-    {
-        pl.hp -= 1;
-        pl.invincible = 30;
-        pl.hurt_timer = 12;
-        pl.hitstun = 16;
-        pl.knockback_x = 8 * -sign(pl.x - x);
-        if (pl.knockback_x == 0) pl.knockback_x = 8 * -pl.facing;
-        
-        with (obj_camera_boss_fixed)
-        {
-            shake_time = 6;
-            shake_strength = 4;
-        }
-    }
-    
+    // ACERTOU PEIXE ERRADO — não acontece NADA (atravessa)
+    // (apenas destrói a hitbox pra não acertar várias vezes)
     instance_destroy(hb);
-    
-    // Destrói TODOS os peixes — ataque acaba
-    with (obj_boss_fish) instance_destroy();
 }

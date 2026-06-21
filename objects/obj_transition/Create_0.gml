@@ -14,3 +14,5 @@ wait_timer = 0;
 next_room = -1;
 
 #endregion
+
+depth=-9999;

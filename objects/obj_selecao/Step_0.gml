@@ -1,22 +1,17 @@
 /// Step Event — obj_selecao
 
-#region INPUT — TECLADO + CONTROLE
-
-// Teclado
+// INPUT TECLADO + CONTROLE
 var key_up    = keyboard_check_pressed(vk_up);
 var key_down  = keyboard_check_pressed(vk_down);
-var key_confirm = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(ord("Z"));
+var key_confirm = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(ord("Z")) || keyboard_check_pressed(vk_space);
 
-// Controle Xbox
 var gp_connected = gamepad_is_connected(0);
 
 if (gp_connected)
 {
-    // D-pad
     var gp_up   = gamepad_button_check_pressed(0, gp_padu);
     var gp_down = gamepad_button_check_pressed(0, gp_padd);
     
-    // Analógico esquerdo (com deadzone)
     var gp_axis_v = gamepad_axis_value(0, gp_axislv);
     var deadzone = 0.5;
     
@@ -31,10 +26,7 @@ if (gp_connected)
             analog_was_up = true;
         }
     }
-    else
-    {
-        analog_was_up = false;
-    }
+    else analog_was_up = false;
     
     if (gp_axis_v > deadzone)
     {
@@ -44,21 +36,48 @@ if (gp_connected)
             analog_was_down = true;
         }
     }
-    else
-    {
-        analog_was_down = false;
-    }
+    else analog_was_down = false;
     
-    // Botão A para confirmar
     var gp_confirm = gamepad_button_check_pressed(0, gp_face1);
     
-    // Combina inputs
-    key_up = key_up || gp_up || analog_up;
-    key_down = key_down || gp_down || analog_down;
+    key_up = key_up || gp_up;
+    key_down = key_down || gp_down;
     key_confirm = key_confirm || gp_confirm;
 }
 
-// Navegação
+// ==========================================
+// MOUSE — usa bbox real dos botões (já no lugar final)
+// ==========================================
+// Usa coordenadas da room (não GUI) porque os botões existem na room
+var mx = device_mouse_x(0);
+var my = device_mouse_y(0);
+
+var buttons = [obj_btn_jogar, obj_btn_opcoes, obj_btn_creditos, obj_btn_sair];
+
+for (var i = 0; i < array_length(buttons); i++)
+{
+    var btn = instance_find(buttons[i], 0);
+    if (instance_exists(btn))
+    {
+        // Só ativa hover se o botão JÁ chegou na posição final (intro terminou)
+        if (!btn.intro_done) continue;
+        
+        // Usa bbox real (já considera sprite + origin + escala)
+        if (mx >= btn.bbox_left && mx <= btn.bbox_right 
+         && my >= btn.bbox_top && my <= btn.bbox_bottom)
+        {
+            menu_index = i;
+            
+            // Clique = confirma direto
+            if (mouse_check_button_pressed(mb_left))
+                key_confirm = true;
+            
+            break;
+        }
+    }
+}
+
+// Navegação por teclado
 if (key_up)
 {
     menu_index--;
@@ -71,34 +90,22 @@ if (key_down)
     if (menu_index >= menu_total) menu_index = 0;
 }
 
-#endregion
-
-#region BACKGROUND SWITCH
-
+// BACKGROUND SWITCH
 if (menu_index != previous_menu_index)
 {
-    // desativa todos primeiro
     with (obj_bg_menu1) active = false;
     with (obj_bg_menu2) active = false;
     with (obj_bg_menu3) active = false;
 
-    if (menu_index == 1) // opções
+    if (menu_index == 1)
     {
-        with (obj_bg_menu2)
-        {
-            active = true;
-            reset_intro();
-        }
+        with (obj_bg_menu2) { active = true; reset_intro(); }
     }
-    else if (menu_index == 2) // créditos
+    else if (menu_index == 2)
     {
-        with (obj_bg_menu3)
-        {
-            active = true;
-            reset_intro();
-        }
+        with (obj_bg_menu3) { active = true; reset_intro(); }
     }
-    else // jogar ou sair
+    else
     {
         with (obj_bg_menu1) active = true;
     }
@@ -106,31 +113,15 @@ if (menu_index != previous_menu_index)
     previous_menu_index = menu_index;
 }
 
-#endregion
-
-#region SELETOR FRAME
-
-// menu normal = frame 0
-// opções = frame 1
 image_index = (menu_index == 1) ? 1 : 0;
 
-#endregion
-
-#region COR DOS BOTÕES
-
 var use_menu2 = (menu_index == 1);
-
-// base (não selecionado)
 var base_color = use_menu2 ? c_black : c_white;
 
 with (obj_btn_jogar)    image_blend = base_color;
 with (obj_btn_opcoes)   image_blend = base_color;
 with (obj_btn_creditos) image_blend = base_color;
 with (obj_btn_sair)     image_blend = base_color;
-
-#endregion
-
-#region BOTÃO ATUAL
 
 var target_button = noone;
 
@@ -142,24 +133,14 @@ switch (menu_index)
     case 3: target_button = instance_find(obj_btn_sair, 0); break;
 }
 
-#endregion
-
-#region SEGUIR + COR SELECIONADA
-
 if (instance_exists(target_button))
 {
     var offset_x = 0;
-
-    // ajuste no "sair"
-    if (menu_index == 3)
-    {
-        offset_x = 20;
-    }
+    if (menu_index == 3) offset_x = 20;
 
     target_x = target_button.x + offset_x;
     target_y = target_button.y;
 
-    // botão selecionado
     with (target_button)
     {
         image_blend = use_menu2 ? c_white : c_black;
@@ -169,23 +150,18 @@ if (instance_exists(target_button))
 x = lerp(x, target_x, follow_spd);
 y = lerp(y, target_y, follow_spd);
 
-#endregion
+/// SUBSTITUI APENAS O BLOCO #region CONFIRMAR do obj_selecao Step
 
-/// Step Event — obj_selecao
-/// SUBSTITUI APENAS A REGIÃO #region CONFIRMAR
-/// Mantenha o resto do código igual
-
-#region CONFIRMAR
-
+// CONFIRMAR
 if (key_confirm)
 {
     if (instance_exists(target_button))
     {
         switch (menu_index)
         {
-            case 0: // JOGAR
-                global.loading_target_room = rm_game;
-                
+            case 0:
+                // Vai pra cutscene_game (e depois pro game)
+                global.loading_target_room = rm_cutscene_game;
                 if (!instance_exists(obj_transition))
                 {
                     var trans = instance_create_layer(0, 0, "Instances", obj_transition);
@@ -193,7 +169,7 @@ if (key_confirm)
                 }
             break;
             
-            case 1: // OPÇÕES
+            case 1:
                 if (!instance_exists(obj_transition))
                 {
                     var trans = instance_create_layer(0, 0, "Instances", obj_transition);
@@ -201,7 +177,7 @@ if (key_confirm)
                 }
             break;
             
-            case 2: // CRÉDITOS
+            case 2:
                 if (!instance_exists(obj_transition))
                 {
                     var trans = instance_create_layer(0, 0, "Instances", obj_transition);
@@ -209,11 +185,9 @@ if (key_confirm)
                 }
             break;
             
-            case 3: // SAIR
+            case 3:
                 game_end();
             break;
         }
     }
 }
-
-#endregion

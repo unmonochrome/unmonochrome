@@ -154,22 +154,6 @@ draw_text_transformed(
     1.2, 1.2, 0
 );
 
-// ==========================================
-// HP NUMÉRICO DENTRO DA BARRA (estilo Terraria)
-// ==========================================
-draw_set_halign(fa_center);
-draw_set_valign(fa_middle);
-
-var hp_text = string(boss_ref.hp) + " / " + string(boss_ref.max_hp);
-
-
-// Texto
-draw_set_color(c_white);
-draw_text(
-    gw / 2,
-    pulse_y + (pulse_h / 2),
-    hp_text
-);
 
 // ==========================================
 // RESET

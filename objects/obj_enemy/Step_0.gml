@@ -1,17 +1,11 @@
 /// Step Event — obj_enemy
 
-// ==========================================
-#region TIMERS
-// ==========================================
 if (hitstun > 0) hitstun--;
 if (hurt_timer > 0) hurt_timer--;
 if (invincible > 0) invincible--;
-if (attack_cooldown > 0) attack_cooldown--;
-#endregion
+behavior_timer++;
 
-// ==========================================
-#region ATIVAÇÃO
-// ==========================================
+// ATIVAÇÃO
 if (!activated)
 {
     var cam = view_camera[0];
@@ -25,42 +19,23 @@ if (!activated)
     {
         activated = true;
     }
-    else
-    {
-        exit;
-    }
+    else exit;
 }
-#endregion
 
-// ==========================================
-#region MORTE ANIMADA
-// ==========================================
+// MORTE ANIMADA
 if (dying)
 {
     death_timer++;
-
     var t = death_timer / death_timer_max;
-
     death_scale = max(0, 1 - t);
     death_alpha = max(0, 1 - t);
-
     x += irandom_range(-2, 2);
-
     hspd = 0;
     vspd = 0;
-
-    if (death_timer >= death_timer_max)
-    {
-        instance_destroy();
-    }
-
+    if (death_timer >= death_timer_max) instance_destroy();
     exit;
 }
-#endregion
 
-// ==========================================
-#region CHECAR MORTE
-// ==========================================
 if (hp <= 0 && !dying)
 {
     dying = true;
@@ -73,158 +48,137 @@ if (hp <= 0 && !dying)
         shake_time = 6;
         shake_strength = 3;
     }
-
     exit;
 }
-#endregion
 
-// ==========================================
-#region AGGRO POR DISTÂNCIA
-// ==========================================
+// IA FUGA
 var player = instance_nearest(x, y, target);
+var move = 0;
+var current_speed_mult = 1.0;
 
 if (instance_exists(player))
 {
     var dist = point_distance(x, y, player.x, player.y);
-
-    if (dist < aggro_range || hp < max_hp)
+    var dx = x - player.x;
+    var flee_dir = sign(dx);
+    if (flee_dir == 0) flee_dir = choose(-1, 1);
+    
+    if (dist < panic_range)
     {
-        aggro = true;
+        behavior_state = 2;
+        behavior_timer = 0;
     }
-
-    if (aggro && dist > lose_aggro_range && hp >= max_hp)
+    else if (dist < flee_range)
     {
-        aggro = false;
-    }
-}
-#endregion
-
-// ==========================================
-// ==========================================
-#region ATAQUE
-// ==========================================
-
-var player_collision = instance_place(x, y, obj_player);
-
-// Sempre reinicia animação ao encostar
-if (player_collision != noone && aggro)
-{
-    sprite_index = spr_olhinho_ataque;
-    image_index = 0;
-    image_speed = 1;
-
-    attacking = true;
-    attack_timer = attack_duration;
-
-    current_scale = scale_attack;
-}
-
-// Cooldown só pro DANO
-if (player_collision != noone && aggro && attack_cooldown <= 0)
-{
-    attack_cooldown = attack_cooldown_max;
-
-    // Dano aqui
-    with (player_collision)
-    {
-        hp -= 1;
-    }
-}
-
-// Contagem da animação
-if (attacking)
-{
-    attack_timer--;
-
-    if (attack_timer <= 0)
-    {
-        attacking = false;
-
-        sprite_index = spr_olhinho;
-        image_speed = 0;
-
-        current_scale = scale_idle;
-    }
-}
-
-#endregion
-
-// ==========================================
-#region IA / MOVIMENTO HORIZONTAL
-// ==========================================
-var move = 0;
-
-if (hitstun <= 0 && !attacking)
-{
-    if (aggro && instance_exists(player))
-    {
-        var dx = player.x - x;
-
-        if (abs(dx) > 8)
+        if (behavior_state == 2)
         {
-            move = sign(dx);
+            behavior_state = 1;
+            behavior_timer = 0;
+        }
+        else if (behavior_state == 0)
+        {
+            behavior_state = 1;
+            behavior_timer = 0;
         }
     }
     else
     {
-        // Patrulha lenta
-        move = facing;
-        
-        // Muda de direção aleatoriamente
-        if (random(100) < 1)
+        if (behavior_state == 1 || behavior_state == 2)
         {
-            facing *= -1;
+            behavior_state = 0;
+            behavior_timer = 0;
+            next_behavior_change = irandom_range(behavior_change_min, behavior_change_max);
+        }
+    }
+    
+    if (hitstun <= 0)
+    {
+        switch (behavior_state)
+        {
+            case 0: // PATRULHA
+                move = facing;
+                current_speed_mult = 0.7;
+                
+                if (behavior_timer > next_behavior_change)
+                {
+                    behavior_timer = 0;
+                    next_behavior_change = irandom_range(behavior_change_min, behavior_change_max);
+                    
+                    if (random(100) < 30) facing *= -1;
+                    if (random(100) < peek_chance) behavior_state = 3;
+                }
+            break;
+            
+            case 1: // FUGA NORMAL
+                var fear_factor = 1 - (dist / flee_range);
+                fear_factor = clamp(fear_factor, 0, 1);
+                
+                var wobble = sin(current_time * 0.003 + wobble_seed) * wobble_strength * 0.1;
+                
+                move = flee_dir;
+                // Velocidade base mais alta + fear factor mais forte
+                current_speed_mult = 1.8 + fear_factor * 2.0 + wobble;
+                
+                facing = flee_dir;
+            break;
+            
+            case 2: // PÂNICO
+                move = flee_dir;
+                current_speed_mult = 3.5; // bem mais rápido (era 2.5)
+                facing = flee_dir;
+            break;
+            
+            case 3: // VIGIA
+                move = 0;
+                facing = -sign(dx);
+                
+                if (behavior_timer > 40)
+                {
+                    behavior_state = 0;
+                    behavior_timer = 0;
+                    next_behavior_change = irandom_range(behavior_change_min, behavior_change_max);
+                }
+            break;
         }
     }
 }
-#endregion
 
-// ==========================================
-#region FACING
-// ==========================================
-if (hitstun <= 0 && move != 0)
-{
-    facing = sign(move);
-}
-#endregion
-
-// ==========================================
-#region HORIZONTAL MOVEMENT
-// ==========================================
+// MOVIMENTO HORIZONTAL
 if (hitstun > 0)
 {
     hspd = knockback_x;
-
     if (abs(knockback_x) > 0.1) knockback_x *= 0.85;
     else knockback_x = 0;
 }
 else
 {
-    hspd = move * walkspd;
+    var target_hspd = move * walkspd * current_speed_mult;
+    target_hspd = clamp(target_hspd, -max_flee_speed, max_flee_speed);
+    
+    // Aceleração mais rápida pra responder melhor à fuga
+    hspd = lerp(hspd, target_hspd, 0.25);
 }
 
 x += hspd;
-#endregion
 
-// ==========================================
-#region FLUTUAÇÃO VERTICAL
-// ==========================================
-// Movimento senoidal pra cima e pra baixo
-float_y = sin((current_time * 0.001 * 60 * float_speed) + float_seed) * float_height;
+// Sai da room
+if (x < -300 || x > room_width + 300)
+{
+    instance_destroy();
+    exit;
+}
 
+// FLUTUAÇÃO VERTICAL
+var float_mult = 1.0;
+if (behavior_state == 2) float_mult = 1.5;
+else if (behavior_state == 1) float_mult = 1.2;
+
+float_y = sin((current_time * 0.001 * 60 * float_speed * float_mult) + float_seed) * float_height;
 y = base_y + float_y;
-#endregion
 
-// ==========================================
-#region SPRITE / VISUAL
-// ==========================================
+// SPRITE
 image_xscale = facing;
 image_yscale = 1;
 
-// Se não tá atacando, usa sprite idle
-if (!attacking)
-{
-    sprite_index = spr_olhinho;
-    image_speed = 0;
-}
-#endregion
+sprite_index = spr_olhinho;
+image_speed = 0;

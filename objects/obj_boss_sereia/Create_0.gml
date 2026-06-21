@@ -1,8 +1,8 @@
 /// Create Event — obj_boss_sereia
 
 #region HP e Estado
-hp = 10;
-max_hp = 10;
+hp = 6;
+max_hp = 6;
 
 // Rastreador de HP pra detectar quando levou dano
 last_hp = hp;
@@ -97,3 +97,15 @@ randomize();
 
 // Direção dos peixes (alterna a cada ataque)
 fish_direction = 1;  // 1 = esquerda→direita, -1 = direita→esquerda
+
+
+/// ADICIONA NO FINAL DO CREATE do obj_boss_sereia
+
+// ==========================================
+// TUTORIAL — só na primeira vez que entra na room
+// ==========================================
+if (!variable_global_exists("tutorial_sereia_done") || !global.tutorial_sereia_done)
+{
+    instance_create_depth(0, 0, -9990, obj_tutorial_sereia);
+    global.tutorial_sereia_done = true;
+}

@@ -24,19 +24,13 @@ if (ataque_anim_timer >= ataque_anim_speed)
         ataque_anim_frame = 0;
 }
 
-// Fade da borda
 jato_alpha = lerp(jato_alpha, jato_alpha_target, 0.08);
 
-// ==========================================
-// MOVE AS 2 CÓPIAS PRA BAIXO (sempre, no state 1)
-// ==========================================
 if (state == 1)
 {
     fish_y_1 += ataque_scroll_speed;
     fish_y_2 += ataque_scroll_speed;
     
-    // Loop infinito SÓ se peixes_active
-    // (quando uma cópia sai da tela, reposiciona acima da outra)
     if (peixes_active)
     {
         if (fish_y_1 - sprite_h / 2 > room_height)
@@ -47,9 +41,6 @@ if (state == 1)
     }
 }
 
-// ==========================================
-// ESTADO 0 = WARNING
-// ==========================================
 if (state == 0)
 {
     warning_timer++;
@@ -61,7 +52,6 @@ if (state == 0)
         jato_alpha_target = 1;
         peixes_active = true;
         
-        // Reseta posições: cópia 1 entra primeiro, cópia 2 vem logo atrás
         fish_y_1 = -sprite_h;
         fish_y_2 = -sprite_h * 2;
     }
@@ -69,7 +59,7 @@ if (state == 0)
 }
 
 // ==========================================
-// ESTADO 1 = ATIVA
+// ESTADO 1 = ATIVA — DANO SÓ NA ALTURA DOS PEIXES (não na lane inteira)
 // ==========================================
 if (is_dangerous)
 {
@@ -77,25 +67,35 @@ if (is_dangerous)
     
     if (instance_exists(p))
     {
-        if (p.x >= x && p.x <= x + lane_width && p.invincible <= 0)
+        // Player precisa estar dentro do X da lane
+        var inside_x = (p.x >= x && p.x <= x + lane_width);
+        
+        if (inside_x && p.invincible <= 0)
         {
-            p.hp--;
-            p.invincible = 30;
-            p.hurt_timer = 12;
+            // Hitbox vertical: só causa dano se o player tá perto da Y dos peixes
+            // Tolerância vertical de cada peixe (raio de colisão)
+            var hit_range = sprite_h / 2 * 0.6; // 60% do raio do peixe
             
-            with (obj_camera)
+            var hit_1 = (abs(p.y - fish_y_1) < hit_range);
+            var hit_2 = (abs(p.y - fish_y_2) < hit_range);
+            
+            if (hit_1 || hit_2)
             {
-                shake_time = 5;
-                shake_strength = 3;
+                p.hp--;
+                p.invincible = 60;
+                p.hurt_timer = 60;
+                p.hitstun = 20;
+                
+                with (obj_camera_boss_fixed)
+                {
+                    shake_time = 5;
+                    shake_strength = 3;
+                }
             }
         }
     }
 }
 
-// ==========================================
-// AUTO-DESTRUIÇÃO
-// quando: borda invisível + AS 2 CÓPIAS saíram da tela
-// ==========================================
 if (should_destroy 
     && jato_alpha < 0.02 
     && fish_y_1 - sprite_h / 2 > room_height

@@ -1,4 +1,8 @@
 /// Create Event — obj_player
+/// ADICIONA NO TOPO DO CREATE do obj_player (1ª linha)
+
+ensure_settings_defaults();
+
 
 #region Movimento
 hspd = 0;
@@ -35,7 +39,7 @@ hp_max = 10;
 hp = hp_max;
 #endregion
 
-#region Dano
+#region Dano (HITSTUN MAIOR)
 hurt_timer = 0;
 invincible = 0;
 knockback_x = 0;
@@ -84,17 +88,14 @@ water_vspd = 0;
 water_friction = 0.92;
 #endregion
 
-/// SUBSTITUI APENAS A REGIÃO #region Dash Aquático no Create
-
 #region Dash Aquático
 dash_active = false;
 dash_timer = 0;
-dash_duration = 18;         // 4 frames / 13 fps * 60 = ~18 frames
+dash_duration = 18;
 dash_speed = 10;
 dash_cooldown = 0;
 dash_cooldown_max = 40;
 #endregion
-
 
 #region Inclinação Aquática
 swim_tilt_angle = 0;
@@ -103,8 +104,14 @@ swim_tilt_speed = 0.15;
 swim_tilt_max = 18;
 #endregion
 
-#region Pulo Aquático (4 frames a 11 fps)
+#region Pulo Aquático
 swim_jump_timer = 0;
-swim_jump_duration = 22;    // 4 frames / 11 fps * 60 fps = ~22 frames
-swim_jump_anim_speed = 11/60; // toca a exatamente 11 fps
+swim_jump_duration = 22;
+swim_jump_anim_speed = 11/60;
+#endregion
+
+#region CEGUEIRA (bolhas da sereia)
+blind_alpha = 0;
+blind_alpha_target = 0;
+blind_pulse = 0;
 #endregion

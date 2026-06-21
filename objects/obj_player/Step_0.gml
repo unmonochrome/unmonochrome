@@ -1,4 +1,13 @@
-/// Step Event — obj_player
+/// SUBSTITUI o trecho da MÁSCARA DE COLISÃO no INÍCIO do Step
+
+// ==========================================
+// MÁSCARA DE COLISÃO baseada no estado
+// ==========================================
+// SÓ usa mask_index do swim na room da sereia
+if (in_water && room == rm_sereia)
+    mask_index = spr_player_swim;
+else
+    mask_index = spr_player_mask;
 
 // ==========================================
 #region TIMERS
@@ -10,6 +19,12 @@ if (atk_cd > 0) atk_cd--;
 if (step_timer > 0) step_timer--;
 if (dash_cooldown > 0) dash_cooldown--;
 if (swim_jump_timer > 0) swim_jump_timer--;
+
+// Cegueira vai sumindo
+blind_pulse += 0.1;
+blind_alpha = lerp(blind_alpha, blind_alpha_target, 0.015);
+if (blind_alpha < 0.02) blind_alpha = 0;
+blind_alpha_target = lerp(blind_alpha_target, 0, 0.015);
 #endregion
 
 // ==========================================
@@ -35,16 +50,22 @@ if (transitioning)
 }
 #endregion
 
+/// SUBSTITUI APENAS A REGIÃO #region CONTROLS no Step do obj_player
+
 // ==========================================
-#region CONTROLS
+#region CONTROLS (usando configurações globais)
 // ==========================================
-var key_left   = keyboard_check(vk_left);
-var key_right  = keyboard_check(vk_right);
-var key_up     = keyboard_check(vk_up);
-var key_down   = keyboard_check(vk_down);
-var key_jump   = keyboard_check_pressed(ord("Z"));
-var key_attack = keyboard_check_pressed(ord("C"));
-var key_run    = keyboard_check(ord("X"));
+var key_left   = keyboard_check(global.key_left);
+var key_right  = keyboard_check(global.key_right);
+var key_up     = keyboard_check(global.key_up);
+var key_down   = keyboard_check(global.key_down);
+
+// Pular aceita SPACE (configurado) E ↑ (sempre, por conveniência)
+var key_jump   = keyboard_check_pressed(global.key_jump) 
+              || keyboard_check_pressed(global.key_up);
+
+var key_attack = keyboard_check_pressed(global.key_attack);
+var key_run    = keyboard_check(global.key_run);
 
 var gp_connected = gamepad_is_connected(0);
 
@@ -79,6 +100,7 @@ if (gp_connected)
 
 var move = key_right - key_left;
 #endregion
+
 
 // ==========================================
 #region DEATH STATE
@@ -217,9 +239,6 @@ if (in_water)
     on_ground = false;
     state = "water";
     
-    // ==========================================
-    // CÁLCULO DA INCLINAÇÃO AQUÁTICA (SEM * facing)
-    // ==========================================
     if (dash_active || hitstun > 0 || swim_jump_timer > 0)
     {
         swim_tilt_target = 0;
@@ -232,7 +251,6 @@ if (in_water)
         var vert_factor = vspd / 10;
         vert_factor = clamp(vert_factor, -0.5, 0.5);
         
-        // SEM multiplicar por facing — o GM cuida da rotação
         swim_tilt_target = -tilt_factor * swim_tilt_max + vert_factor * swim_tilt_max * 0.6;
     }
     
@@ -241,7 +259,7 @@ if (in_water)
 #endregion
 
 // ==========================================
-#region MODO TERRESTRE (Normal)
+#region MODO TERRESTRE
 // ==========================================
 else
 {
@@ -250,14 +268,11 @@ else
     swim_tilt_angle = lerp(swim_tilt_angle, 0, 0.2);
     swim_jump_timer = 0;
     
-    #region RUN TIMER
     if (move != 0 && on_ground && hitstun <= 0)
         run_timer++;
     else if (on_ground)
         run_timer = 0;
-    #endregion
     
-    #region SPEED CALC
     var base_speed = walkspd;
     var max_boost = 1.5;
     var t = clamp(run_timer / 120, 0, 1);
@@ -267,9 +282,7 @@ else
     if (key_run && hitstun <= 0) run_multiplier = 1.6;
 
     var final_max_speed = current_max_speed * run_multiplier;
-    #endregion
     
-    #region MOVEMENT
     var accel_ground = 0.7;
     var accel_air = 0.3;
     var decel_ground = 0.9;
@@ -302,38 +315,26 @@ else
             }
         }
     }
-    #endregion
     
-    #region TURN CONTROL
     if (hitstun <= 0 && move != 0 && abs(hspd) > 0.1 && sign(move) != sign(hspd))
         hspd *= 0.55;
-    #endregion
     
-    #region SPEED LIMIT
     if (hitstun <= 0)
         hspd = clamp(hspd, -final_max_speed, final_max_speed);
-    #endregion
     
-    #region GRAVITY
     grav = 0.5;
     vspd += grav;
-    #endregion
     
-    #region COYOTE
     if (on_ground) coyote = coyote_max;
     else coyote--;
-    #endregion
     
-    #region JUMP
     if (hitstun <= 0 && key_jump && coyote > 0)
     {
         vspd = jump_force;
         coyote = 0;
         audio_play_sound(snd_jump, 1, false);
     }
-    #endregion
     
-    #region ATTACK
     if (!attacking && hitstun <= 0 && key_attack && atk_cd <= 0)
     {
         attacking = true;
@@ -345,9 +346,7 @@ else
         audio_play_sound(snd_attack, 1, false);
         atk_cd = atk_cd_max;
     }
-    #endregion
     
-    #region ATTACK STATE
     if (attacking)
     {
         attack_timer--;
@@ -357,9 +356,7 @@ else
 
         if (attack_timer <= 0) attacking = false;
     }
-    #endregion
     
-    #region H COLLISION
     if (place_meeting(x + hspd, y, obj_solid))
     {
         while (!place_meeting(x + sign(hspd), y, obj_solid))
@@ -370,9 +367,7 @@ else
     }
 
     x += hspd;
-    #endregion
     
-    #region V COLLISION
     on_ground = false;
 
     if (place_meeting(x, y + vspd, obj_solid))
@@ -389,7 +384,6 @@ else
     }
 
     y += vspd;
-    #endregion
 }
 #endregion
 
@@ -415,9 +409,10 @@ if (boss_hand != noone) attacker = boss_hand;
 if (attacker != noone && invincible <= 0)
 {
     hp--;
-    invincible = 30;
-    hurt_timer = 12;
-    hitstun = 12;
+    // HITSTUN MAIOR: 1 segundo de invencibilidade
+    invincible = 60;
+    hurt_timer = 60;
+    hitstun = 20;
 
     audio_play_sound(snd_hurt, 1, false);
 

@@ -36,16 +36,25 @@ last_hp = hp;
 if (hit_flash_timer > 0) hit_flash_timer--;
 
 // ==========================================
-// DIFICULDADE PROGRESSIVA
+// DIFICULDADE PROGRESSIVA (mais agressiva)
 // ==========================================
 var hp_ratio = hp / max_hp;
 var difficulty = 1 - hp_ratio;
 
-var idle_duration = lerp(120, 75, difficulty);
-var bubble_count_mult = 1 + difficulty * 0.3;
-var attack_speed_mult = 1 + difficulty * 0.2;
-var lane_duration = lerp(180, 240, difficulty);
-var bubble_delay_base = lerp(8, 5, difficulty);
+// Menos tempo entre ataques
+var idle_duration = lerp(90, 50, difficulty);     // antes 120→75
+
+// Mais bolhas com HP baixo
+var bubble_count_mult = 1.2 + difficulty * 0.6;    // antes 1 + 0.3 (+20% base)
+
+// Velocidade dos ataques aumenta mais
+var attack_speed_mult = 1.1 + difficulty * 0.4;    // antes 1 + 0.2
+
+// Jato dura mais
+var lane_duration = lerp(210, 280, difficulty);    // antes 180→240
+
+// Bolhas mais juntas
+var bubble_delay_base = lerp(6, 3, difficulty);    // antes 8→5
 
 // ==========================================
 // EXPRESSÕES
@@ -108,7 +117,7 @@ switch (state)
     break;
     
     // ==================================================
-    // ATAQUE 1 — BOLHAS
+    // ATAQUE 1 — BOLHAS (mais rápido, mais bolhas)
     // ==================================================
     case 1:
         if (!bubbles_spawned)
@@ -118,7 +127,7 @@ switch (state)
             
             if (bubble_pattern == 0)
             {
-                var num_bolhas = round(8 * bubble_count_mult);
+                var num_bolhas = round(10 * bubble_count_mult); // antes 8
                 
                 for (var i = 0; i < num_bolhas; i++)
                 {
@@ -131,7 +140,7 @@ switch (state)
                         
                         var bubble = instance_create_layer(start_x, start_y, "effects", obj_boss_bubble);
                         bubble.spawn_delay = i * bubble_delay_base;
-                        bubble.speed_projectile = 5;
+                        bubble.speed_projectile = 9; // antes 7
                         bubble.speed_projectile *= attack_speed_mult;
                         bubble.target_scale = 0.9;
                         
@@ -149,7 +158,7 @@ switch (state)
                         
                         var bubble = instance_create_layer(start_x, start_y, "effects", obj_boss_bubble);
                         bubble.spawn_delay = j * bubble_delay_base;
-                        bubble.speed_projectile = 5;
+                        bubble.speed_projectile = 9;
                         bubble.speed_projectile *= attack_speed_mult;
                         bubble.target_scale = 0.9;
                         
@@ -161,13 +170,15 @@ switch (state)
             }
             else
             {
-                var num_colunas = 7;
+                // PATTERN 1 — vertical com buraco
+                var num_colunas = 8; // antes 7 (mais colunas = menos espaço)
                 var coluna_segura = irandom(num_colunas - 1);
                 
                 var player_col = floor(p.x / (room_width / num_colunas));
                 player_col = clamp(player_col, 0, num_colunas - 1);
                 
-                if (random(100) < 70) coluna_segura = player_col;
+                // Reduz a chance do buraco ficar no player (mais punitivo)
+                if (random(100) < 50) coluna_segura = player_col; // antes 70
                 
                 for (var col = 0; col < num_colunas; col++)
                 {
@@ -176,15 +187,15 @@ switch (state)
                     var col_x = (col + 0.5) * (room_width / num_colunas);
                     
                     var bubble_top = instance_create_layer(col_x, -80, "effects", obj_boss_bubble);
-                    bubble_top.spawn_delay = col * 3;
-                    bubble_top.speed_projectile = 4;
+                    bubble_top.spawn_delay = col * 2; // antes 3
+                    bubble_top.speed_projectile = 7; // antes 6
                     bubble_top.speed_projectile *= attack_speed_mult;
                     bubble_top.target_scale = 0.9;
                     bubble_top.vspd = bubble_top.speed_projectile;
                     
                     var bubble_bot = instance_create_layer(col_x, room_height + 80, "effects", obj_boss_bubble);
-                    bubble_bot.spawn_delay = col * 3;
-                    bubble_bot.speed_projectile = 4;
+                    bubble_bot.spawn_delay = col * 2;
+                    bubble_bot.speed_projectile = 7;
                     bubble_bot.speed_projectile *= attack_speed_mult;
                     bubble_bot.target_scale = 0.9;
                     bubble_bot.vspd = -bubble_bot.speed_projectile;
@@ -200,7 +211,7 @@ switch (state)
     break;
     
     // ==================================================
-    // ATAQUE 2 — JATOS (saída natural — NÃO DESTRÓI DIRETO)
+    // ATAQUE 2 — JATOS (igual, mas mais frequente via idle menor)
     // ==================================================
     case 2:
         if (!water_lanes_active)
@@ -208,7 +219,6 @@ switch (state)
             water_lanes_active = true;
             water_lane_timer = 0;
             
-            // Sereia avisa
             repeat(15)
             {
                 var bx = x + random_range(-150, 150);
@@ -225,7 +235,6 @@ switch (state)
             current_expression = "angry";
             expression_timer = 60;
             
-            // CRIA OS JATOS
             var jato_w = 384;
             var jato_spacing = 400;
             
@@ -258,16 +267,11 @@ switch (state)
         
         water_lane_timer++;
         
-        // ============================================
-        // QUANDO O ATAQUE ACABA — marca pra sair natural
-        // NÃO destrói nada direto! Os jatos se autodestroem
-        // quando a borda some + peixes saem da tela
-        // ============================================
         if (water_lane_timer >= lane_duration)
         {
             with (obj_water_lane)
             {
-                if (state == 1) // só nas lanes ativas
+                if (state == 1)
                 {
                     peixes_active = false;
                     jato_alpha_target = 0;
@@ -283,57 +287,53 @@ switch (state)
     break;
     
     // ==================================================
-    // ATAQUE 3 — PEIXES
+    // ATAQUE 3 — PEIXES (um pouco mais rápido)
     // ==================================================
-  /// SUBSTITUI APENAS O case 3 (ATAQUE PEIXES) no Step do obj_boss_sereia
-
-case 3:
-    if (!fish_spawned)
-    {
-        fish_spawned = true;
-        
-        var num_fish = 3;
-        var correct = irandom(num_fish - 1);
-        var spacing = room_height / num_fish;
-        
-        // Define posição de spawn e velocidade baseado na direção
-        var spawn_x, fish_hspd;
-        
-        if (fish_direction == 1)
+    case 3:
+        if (!fish_spawned)
         {
-            // ESQUERDA → DIREITA
-            spawn_x = -300;
-            fish_hspd = 16;  // velocidade positiva
-        }
-        else
-        {
-            // DIREITA → ESQUERDA
-            spawn_x = room_width + 300;
-            fish_hspd = -16;  // velocidade negativa
-        }
-        
-        for (var i = 0; i < num_fish; i++)
-        {
-            var fy = spacing * i + (spacing / 2);
-            var fish = instance_create_layer(spawn_x, fy, "effects", obj_boss_fish);
-            fish.is_correct = (i == correct);
-            fish.hspd = fish_hspd;
-            fish.fish_direction = fish_direction;  // passa pro peixe pra ele saber pra onde vai
+            fish_spawned = true;
             
-            if (fish.is_correct) correct_fish_id = fish.id;
+            var num_fish = 3;
+            var correct = irandom(num_fish - 1);
+            var spacing = room_height / num_fish;
+            
+            var spawn_x, fish_hspd;
+            
+            // Velocidade aumenta com HP baixo (mas começa lento pra ainda dar pra ver)
+            var base_fish_speed = 7 + difficulty * 4; // 7 → 11
+            
+            if (fish_direction == 1)
+            {
+                spawn_x = -300;
+                fish_hspd = base_fish_speed;
+            }
+            else
+            {
+                spawn_x = room_width + 300;
+                fish_hspd = -base_fish_speed;
+            }
+            
+            for (var i = 0; i < num_fish; i++)
+            {
+                var fy = spacing * i + (spacing / 2);
+                var fish = instance_create_layer(spawn_x, fy, "effects", obj_boss_fish);
+                fish.is_correct = (i == correct);
+                fish.hspd = fish_hspd;
+                fish.fish_direction = fish_direction;
+                
+                if (fish.is_correct) correct_fish_id = fish.id;
+            }
+            
+            fish_direction *= -1;
         }
         
-        // Inverte direção pro próximo ataque
-        fish_direction *= -1;
-    }
-    
-    if (instance_number(obj_boss_fish) <= 0)
-    {
-        state = 0;
-        state_timer = 0;
-    }
-break;
-
+        if (instance_number(obj_boss_fish) <= 0)
+        {
+            state = 0;
+            state_timer = 0;
+        }
+    break;
     
     // ==================================================
     // MORTE CINEMÁTICA
@@ -343,7 +343,6 @@ break;
         death_active = true;
         death_timer++;
         
-        // SÓ na morte destrói tudo direto
         with (obj_boss_bubble) instance_destroy();
         with (obj_water_lane) instance_destroy();
         with (obj_boss_fish) instance_destroy();
@@ -463,6 +462,12 @@ break;
             {
                 p.in_water = false;
                 death_active = false;
+                
+                var fb = instance_create_depth(0, 0, -9999, obj_fade_black);
+                fb.alpha = 1;
+                fb.go_to_loading = true;
+                fb.target_room   = rm_creditos;
+                
                 instance_destroy();
             }
         }
