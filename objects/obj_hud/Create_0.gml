@@ -34,7 +34,7 @@ audio_stop_all();
 
 /// Create Event — obj_hud
 
-depth = -9000;
+depth = -7000;
 
 // ==========================================
 // CONFIGURAÇÕES DOS CORAÇÕES

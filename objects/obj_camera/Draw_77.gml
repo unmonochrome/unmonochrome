@@ -1,5 +1,6 @@
 /// Post-Draw Event — obj_camera
-/// Desenha a tela inteira com letterbox 16:9 + shader monocromático
+/// Desenha a tela inteira com letterbox 16:9
+/// (Shader monocromático fica nos objetos individuais — olho, mãos, etc)
 
 var ww = window_get_width();
 var wh = window_get_height();
@@ -20,7 +21,7 @@ if (screen_aspect > target_aspect)
 }
 else
 {
-    // Tela mais alta (vertical) → letterbox em cima/baixo
+    // Tela mais alta → letterbox em cima/baixo
     dw = ww;
     dh = dw / target_aspect;
     dx = 0;
@@ -47,21 +48,6 @@ if (dy > 0)
 draw_set_color(c_white);
 
 // ==========================================
-// DESENHA O JOGO (com shader se for mono)
+// DESENHA O JOGO (SEM shader — cores naturais)
 // ==========================================
-if (room == rm_game || room == rm_boss_olho)
-{
-    shader_set(shd_saturation);
-    shader_set_uniform_f(
-        shader_get_uniform(shd_saturation, "saturation"),
-        0.0
-    );
-    
-    draw_surface_stretched(application_surface, dx, dy, dw, dh);
-    
-    shader_reset();
-}
-else
-{
-    draw_surface_stretched(application_surface, dx, dy, dw, dh);
-}
+draw_surface_stretched(application_surface, dx, dy, dw, dh);

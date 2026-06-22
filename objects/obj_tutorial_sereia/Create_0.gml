@@ -8,7 +8,7 @@ instance_deactivate_all(true);
 // ==========================================
 // SPRITES DO TUTORIAL (ordem)
 // ==========================================
-tutorial_sprites = [tutorial1, tutorial2, tutorial3];
+tutorial_sprites = [tutorial4 ,tutorial5 ,tutorial1, tutorial2, tutorial3];
 total_tutorials = array_length(tutorial_sprites);
 
 current = 0; // índice atual

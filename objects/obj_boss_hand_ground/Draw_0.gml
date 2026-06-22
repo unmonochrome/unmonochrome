@@ -1,7 +1,28 @@
 /// Draw Event — obj_boss_hand_ground
 
 // ==========================================
-// TRAIL FANTASMA (cópias residuais com opacidade real)
+// VERIFICAR SE TÁ EM ROOM MONOCROMÁTICA
+// ==========================================
+var is_monochrome = (room == rm_game || room == rm_boss_olho);
+
+// ==========================================
+// CORES DO BRILHO (cinza se mono, dourado se colorido)
+// ==========================================
+var glow_color_center, glow_color_top;
+
+if (is_monochrome)
+{
+    glow_color_center = make_colour_rgb(220, 220, 220);
+    glow_color_top    = make_colour_rgb(240, 240, 240);
+}
+else
+{
+    glow_color_center = make_colour_rgb(255, 220, 100);
+    glow_color_top    = make_colour_rgb(255, 240, 180);
+}
+
+// ==========================================
+// TRAIL FANTASMA (cópias residuais)
 // ==========================================
 var trail_count = array_length(trail_positions);
 
@@ -10,13 +31,20 @@ for (var i = 0; i < trail_count; i++)
     var ghost_y = trail_positions[i][0];
     var ghost_alpha_stored = trail_positions[i][1];
     
-    // Mais novos (índices maiores) = mais visíveis
     var age_factor = (i + 1) / trail_count;
-    
     var final_ghost_alpha = ghost_alpha_stored * age_factor * 0.6;
     
     if (final_ghost_alpha > 0.01)
     {
+        if (is_monochrome)
+        {
+            shader_set(shd_saturation);
+            shader_set_uniform_f(
+                shader_get_uniform(shd_saturation, "saturation"),
+                0.0
+            );
+        }
+        
         draw_sprite_ext(
             sprite_index,
             image_index,
@@ -27,6 +55,8 @@ for (var i = 0; i < trail_count; i++)
             c_white,
             final_ghost_alpha
         );
+        
+        if (is_monochrome) shader_reset();
     }
 }
 
@@ -40,7 +70,6 @@ if (is_target && !dying && image_alpha > 0.3)
     var pulse_intensity = 0.6 + abs(sin(glow_pulse)) * 0.4;
     var glow_size = 180 + abs(sin(glow_pulse)) * 30;
     
-    var glow_color_center = make_colour_rgb(255, 220, 100);
     var glow_color_edge = c_black;
     
     draw_set_alpha(0.4 * pulse_intensity * image_alpha);
@@ -68,8 +97,17 @@ if (is_target && !dying && image_alpha > 0.3)
 }
 
 // ==========================================
-// DESENHA A MÃO PRINCIPAL
+// DESENHA A MÃO PRINCIPAL — com shader se mono
 // ==========================================
+if (is_monochrome)
+{
+    shader_set(shd_saturation);
+    shader_set_uniform_f(
+        shader_get_uniform(shd_saturation, "saturation"),
+        0.0
+    );
+}
+
 draw_sprite_ext(
     sprite_index,
     image_index,
@@ -80,6 +118,8 @@ draw_sprite_ext(
     c_white,
     image_alpha
 );
+
+if (is_monochrome) shader_reset();
 
 // ==========================================
 // BRILHO POR CIMA DA MÃO CERTA (no bracelete)
@@ -97,7 +137,7 @@ if (is_target && !dying && image_alpha > 0.3)
         image_xscale,
         image_yscale,
         0,
-        make_colour_rgb(255, 240, 180),
+        glow_color_top,
         top_pulse * image_alpha
     );
     

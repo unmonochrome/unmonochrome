@@ -1,5 +1,10 @@
 /// Step Event — obj_cutscene
 
+// ==========================================
+// ESPERA O TUTORIAL TERMINAR antes de tudo
+// ==========================================
+if (instance_exists(obj_tutorial_game)) exit;
+
 state_timer++;
 if (input_lock > 0) input_lock--;
 
@@ -17,7 +22,6 @@ switch (state)
             }
             else
             {
-                // Arquivo não existe — pula direto
                 state = 2;
                 state_timer = 0;
             }
@@ -27,14 +31,12 @@ switch (state)
     case 1: // TOCANDO
         var status = video_get_status();
         
-        // Vídeo terminou
         if (video_started && state_timer > 30 && (status == -1 || status == 0))
         {
             state = 2;
             state_timer = 0;
         }
         
-        // SKIP
         if (input_lock <= 0)
         {
             var skip = keyboard_check_pressed(vk_space)
@@ -58,7 +60,7 @@ switch (state)
         }
     break;
     
-    case 2: // ENCERRA (sem fade, direto)
+    case 2: // ENCERRA
         if (video_started)
         {
             video_close();
